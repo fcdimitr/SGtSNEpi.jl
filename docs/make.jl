@@ -26,3 +26,22 @@ makedocs( bib,
 deploydocs(;
     repo="github.com/fcdimitr/SGtSNEpi.jl",
 )
+
+
+
+# ========== LaTeX documentation (.tex files)
+
+# using DocumenterLaTeX
+
+# makedocs( bib,
+#     modules=[SGtSNEpi],
+#     authors="Nikos Pitsianis <nikos@cs.duke.edu>, Dimitris Floros <fcdimitr@ece.auth.gr>, Alexandros-Stavros Iliopoulos <ailiop@mit.edu>, Xiaobai Sun <xiaobai@cs.duke.edu>",
+#     repo="https://github.com/fcdimitr/SGtSNEpi.jl/blob/{commit}{path}#{line}",
+#     sitename="SGtSNEpi.jl",
+#     format = LaTeX(platform = "none"),
+#     doctest = false,
+#     pages=[
+#       "Home" => "index.md",
+#       "API" => "API.md",
+#     ],
+# )

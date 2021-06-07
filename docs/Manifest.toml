@@ -64,15 +64,21 @@ version = "0.8.4"
 
 [[Documenter]]
 deps = ["Base64", "Dates", "DocStringExtensions", "IOCapture", "InteractiveUtils", "JSON", "LibGit2", "Logging", "Markdown", "REPL", "Test", "Unicode"]
-git-tree-sha1 = "3ebb967819b284dc1e3c0422229b58a40a255649"
+git-tree-sha1 = "a4875e0763112d6d017126f3944f4133abb342ae"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-version = "0.26.3"
+version = "0.25.5"
 
 [[DocumenterCitations]]
 deps = ["Bibliography", "Documenter", "Markdown", "Unicode"]
 git-tree-sha1 = "3e772279d248a9ab10050ca2d4fbeef6c8a29869"
 uuid = "daee34ce-89f3-4625-b898-19384cb65244"
 version = "0.2.2"
+
+[[DocumenterLaTeX]]
+deps = ["Documenter", "Test"]
+git-tree-sha1 = "653299370be20ff580bccd707dc9f360c0852d7f"
+uuid = "cd674d7a-5f81-5cf3-af33-235ef1834b99"
+version = "0.2.0"
 
 [[Downloads]]
 deps = ["ArgTools", "LibCURL", "NetworkOptions"]

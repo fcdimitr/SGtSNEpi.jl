@@ -1,10 +1,12 @@
 
 @doc raw"""
-    sgtsnepi( A [; d = 2, max_iter = 1000, early_exag = 250, λ = 10, np = 0, profile = false, Y0 = nothing ])
-    sgtsnepi( G [; d = 2, max_iter = 1000, early_exag = 250, λ = 10, np = 0, profile = false, Y0 = nothing ])
+    sgtsnepi( A::AbstractMatrix )
+    sgtsnepi( G::AbstractGraph )
+    sgtsnepi( X::AbstractMatrix )
 
 Call SG-t-SNE-Π on the input graph, given as either a sparse adjacency
-matrix or a graph object.
+matrix $A$ or a graph object $G$.  Alternatively, the input can be a
+point-cloud data set $X$ (coordinates) of size $N \times D$.
 
 ## Optional arguments
 
@@ -19,9 +21,23 @@ matrix or a graph object.
   coordinates, `t` are the execution times per iteration and `g` is
   the grid size per iteration.
 
+## Optional arguments for point-cloud data embedding
+
+- `u=10`: perplexity
+- `k=3*u`: number of nearest neighbors (for kNN formation)
+- `knn_type=( size(A,1) < 10_000 ) ? :exact : :flann`: Exact or approximate kNN
+
 ## Notes
 
-Isolated are embedded at (0,0,...)
+- Isolated are embedded at (0,0,...)
+
+- The function tries to automatically detect whether the input matrix
+  represents an adjacency matrix or data coordinates. The user may
+  specify the type using the optional argument `type`
+  - `:graph`: the input is an adjacency matrix
+  - `:coord`: the input is the data coordinates
+
+
 
 # Examples
 ```jldoctest; filter = [r".*seconds.*", r".*Attractive.*"]
@@ -61,12 +77,24 @@ Iteration 249: error is 1.65057 (50 iterations in 0.213149 seconds)
  Attractive forces: 0.006199 sec [1.24082%] |  Repulsive forces: 0.49339 sec [98.7592%]
 ```
 """
-sgtsnepi( G::AbstractGraph ; kwargs... ) = sgtsnepi( Float64.( adjacency_matrix(G) ) ; kwargs... )
+sgtsnepi( G::AbstractGraph ; kwargs... ) = sgtsnepi( Float64.( adjacency_matrix(G) ) ; kwargs..., type = :graph )
 
-function sgtsnepi( A::SparseMatrixCSC ; d = 2, max_iter = 1000, early_exag = 250, λ = 10, profile = false, Y0 = nothing, np = 0 )
+function sgtsnepi( A::AbstractMatrix ;
+                   d = 2, λ = 10,
+                   max_iter = 1000, early_exag = 250,
+                   Y0 = nothing,
+                   profile = false, np = 0,
+                   type = nothing,
+                   u = 10,
+                   k = 3*u,
+                   knn_type = ( size(A,1) < 10_000 ) ? :exact : :flann )
+
+  A = ( isequal( size(A)... ) && type != :coord ) ? A :
+    _form_knn_graph( A, u, k ; knn_type = knn_type )
 
   nnz( diag(A) ) > 0 && @warn "$( nnz( diag(A) ) ) elements have self-loops; setting distances to 0"
   A = A - spdiagm( 0 => diag( A ) )
+  dropzeros!( A )
 
   @assert nnz( diag(A) ) == 0
 
@@ -92,7 +120,10 @@ function sgtsnepi( A::SparseMatrixCSC ; d = 2, max_iter = 1000, early_exag = 250
 end
 
 function colstoch(A)
-  idxKeep = .! ( vec( sum(A,dims=1) ) .== 0 );
+  idxKeep = vec( sum(A,dims=1) ) .!= 0;
+
+  !all( idxKeep ) && @warn "$( sum( .! idxKepp ) ) isolated nodes; they are placed at (0,0,...)"
+
   A = A[idxKeep,idxKeep]
   D = spdiagm( 0 => 1 ./ vec( sum(A;dims=1) ) );
   P = A * D;

@@ -1,15 +1,15 @@
 
-@inproceedings{HPEC,
+@inproceedings{hpec,
   title = {Spaceland Embedding of Sparse Stochastic Graphs},
-  booktitle = {{{IEEE High Performance Extreme Computing Conference}}},
+  booktitle = {IEEE High Performance Extreme Computing Conference},
   author = {Pitsianis, Nikos and Iliopoulos, Alexandros-Stavros and Floros, Dimitris and Sun, Xiaobai},
   year = {2019},
   doi = {10.1109/HPEC.2019.8916505},
   keywords = {Valid}
 }
 
-@article{JOSS,
-  title = {{{SG}}-t-{{SNE}}-{{Π}}: Swift Neighbor Embedding of Sparse Stochastic Graphs},
+@article{joss,
+  title = {SG-t-SNE-Π: Swift Neighbor Embedding of Sparse Stochastic Graphs},
   author = {Pitsianis, Nikos and Floros, Dimitris and Iliopoulos, Alexandros-Stavros and Sun, Xiaobai},
   year = {2019},
   journal = {Journal of Open Source Software},
@@ -23,3 +23,47 @@
 }
 
 
+@article{bhtsne,
+  title = {Accelerating T-SNE Using Tree-Based Algorithms},
+  volume = {15},
+  number = {Oct},
+  journal = {Journal of Machine Learning Research},
+  author = {van der Maaten, Laurens},
+  year = {2014},
+  pages = {3221-3245}
+}
+
+@article{fitsne,
+  title = {Fast Interpolation-Based t-SNE for Improved Visualization of Single-Cell RNA-Seq Data},
+  volume = {16},
+  number = {3},
+  journal = {Nature Methods},
+  doi = {10.1038/s41592-018-0308-4},
+  author = {Linderman, George C. and Rachh, Manas and Hoskins, Jeremy G. and Steinerberger, Stefan and Kluger, Yuval},
+  year = {2019},
+  pages = {243-245}
+}
+
+@article{tsne,
+  title = {Visualizing Data Using T-SNE},
+  volume = {9},
+  number = {Nov},
+  journal = {Journal of Machine Learning Research},
+  author = {van der Maaten, Laurens and Hinton, Geoffrey E.},
+  year = {2008},
+  pages = {2579-2605}
+}
+
+
+@article{scarf,
+  author = {Dhapola, Parashar and Rodhe, Johan and Olofzon, Rasmus and Bonald, Thomas and Erlandsson, Eva and Soneji, Shamit and Karlsson, G{\"o}ran},
+  title = {Scarf: A toolkit for memory efficient analysis of large-scale single-cell genomics data},
+  elocation-id = {2021.05.02.441899},
+  year = {2021},
+  doi = {10.1101/2021.05.02.441899},
+  publisher = {Cold Spring Harbor Laboratory},
+  abstract = {The increasing capacity to perform large-scale single-cell genomic experiments continues to outpace the computational requirements to efficiently handle growing datasets. Herein we present Scarf, a modularly designed Python package that seamlessly interoperates with other single-cell toolkits and allows for memory-efficient single-cell analysis of millions of cells on a laptop or low-cost devices like single board computers. We demonstrate Scarf{\textquoteright}s memory and compute-time efficiency by applying it to the largest existing single-cell RNA-Seq and ATAC-Seq datasets. Scarf wraps memory-efficient implementations of a graph-based t-stochastic neighbour embedding and hierarchical clustering algorithm. Moreover, Scarf performs accurate reference-anchored mapping of datasets while maintaining memory efficiency. By implementing a novel data downsampling algorithm, Scarf additionally can generate representative sampling of cells from a given dataset wherein rare cell populations and lineage differentiation trajectories are conserved. Together, Scarf provides a framework wherein any researcher can perform advanced processing, downsampling, reanalysis, and integration of atlas-scale datasets on standard laptop computers.Competing Interest StatementThe authors have declared no competing interest.},
+  URL = {https://www.biorxiv.org/content/early/2021/05/03/2021.05.02.441899},
+  eprint = {https://www.biorxiv.org/content/early/2021/05/03/2021.05.02.441899.full.pdf},
+  journal = {bioRxiv}
+}
