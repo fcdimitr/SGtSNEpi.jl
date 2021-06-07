@@ -1,9 +1,12 @@
 using SGtSNEpi
 using Documenter
+using DocumenterCitations
+
+bib = CitationBibliography(joinpath(@__DIR__, "sgtsnepi.bib"))
 
 DocMeta.setdocmeta!(SGtSNEpi, :DocTestSetup, :(using SGtSNEpi); recursive=true)
 
-makedocs(;
+makedocs( bib,
     modules=[SGtSNEpi],
     authors="Nikos Pitsianis <nikos@cs.duke.edu>, Dimitris Floros <fcdimitr@ece.auth.gr>, Alexandros-Stavros Iliopoulos <ailiop@mit.edu>, Xiaobai Sun <xiaobai@cs.duke.edu>",
     repo="https://github.com/fcdimitr/SGtSNEpi.jl/blob/{commit}{path}#{line}",
@@ -14,7 +17,8 @@ makedocs(;
         assets=String[],
     ),
     pages=[
-        "Home" => "index.md",
+      "Home" => "index.md",
+      "API" => "API.md",
     ],
 )
 
