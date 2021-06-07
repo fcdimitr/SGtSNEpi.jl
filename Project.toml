@@ -3,6 +3,12 @@ uuid = "e6c19c8d-e382-4a50-b2c6-174ddd647730"
 authors = ["Nikos Pitsianis <nikos@cs.duke.edu>", "Dimitris Floros <fcdimitr@ece.auth.gr>", "Alexandros-Stavros Iliopoulos <ailiop@mit.edu>", "Xiaobai Sun <xiaobai@cs.duke.edu>"]
 version = "0.1.0"
 
+[deps]
+Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+LightGraphs = "093fc24a-ae57-5d10-9952-331d41423f4d"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+
 [compat]
 julia = "1.6"
 
