@@ -16,6 +16,7 @@ makedocs( bib,
         canonical="https://fcdimitr.github.io/SGtSNEpi.jl",
         assets=String[],
     ),
+    doctest = false,
     pages=[
       "Home" => "index.md",
       "API" => "API.md",

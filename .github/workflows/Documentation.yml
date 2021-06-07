@@ -6,6 +6,8 @@ on:
     paths:
       - "**.jl"
       - "docs/**"
+      - "Project.toml"
+      - "Manifest.toml"
   pull_request:
     branches:
       - master
