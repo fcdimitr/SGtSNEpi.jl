@@ -13,6 +13,7 @@ NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [compat]
+LightGraphs = "1"
 julia = "1.6"
 
 [extras]
