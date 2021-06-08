@@ -92,6 +92,8 @@ function sgtsnepi( A::AbstractMatrix ;
   A = ( isequal( size(A)... ) && type != :coord ) ? A :
     _form_knn_graph( A, u, k ; knn_type = knn_type )
 
+  A = issparse( A ) ? A : sparse( A )
+
   nnz( diag(A) ) > 0 && @warn "$( nnz( diag(A) ) ) elements have self-loops; setting distances to 0"
   A = A - spdiagm( 0 => diag( A ) )
   dropzeros!( A )
@@ -111,18 +113,38 @@ function sgtsnepi( A::AbstractMatrix ;
 
   if (profile)
     Y[idx,:],t,g = _sgtsnepi_profile_c( P, d, max_iter, early_exag, λ; Y0 = Y0, np = np )
+    Y = _fix_isolated( Y, idx )
     Y,t,g
   else
     Y[idx,:] = _sgtsnepi_c( P, d, max_iter, early_exag, λ; Y0 = Y0, np = np )
+    Y = _fix_isolated( Y, idx )
     Y
   end
+
+
+end
+
+function _fix_isolated( Y, idx )
+
+  n_isolated = sum(.!idx)
+  d = size( Y, 2 )
+
+  if n_isolated == 0
+    return Y
+  end
+
+  corner = maximum( Y[idx,:]; dims = 1 )
+
+  Y[.!idx,:] .= corner .* ( 1.0 .+ rand( n_isolated, d ) ./ 10.0 )
+
+  Y
 
 end
 
 function colstoch(A)
   idxKeep = vec( sum(A,dims=1) ) .!= 0;
 
-  !all( idxKeep ) && @warn "$( sum( .! idxKepp ) ) isolated nodes; they are placed at (0,0,...)"
+  !all( idxKeep ) && @warn "$( sum( .! idxKeep ) ) isolated nodes; they are placed at (0,0,...)"
 
   A = A[idxKeep,idxKeep]
   D = spdiagm( 0 => 1 ./ vec( sum(A;dims=1) ) );
