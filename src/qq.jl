@@ -54,7 +54,7 @@ function _qq_exact_c( X::DenseMatrix )
 
   frep = zeros( size(X) )
 
-  zeta = ccall( dlsym( libsgtsnepi, :computeFrepulsive_exact ),
+  zeta = ccall( ( :computeFrepulsive_exact, libsgtsnepi ),
                 Cdouble,
                 ( Ptr{Cdouble},
                   Ptr{Cdouble},
@@ -73,7 +73,7 @@ function _qq_interp_c( X::DenseMatrix, h::Real, np::Int )
   frep = zeros( size(X) )
   timers = zeros( 5 )
 
-  zeta = ccall( dlsym( libsgtsnepi, :computeFrepulsive_interp ),
+  zeta = ccall( ( :computeFrepulsive_interp, libsgtsnepi ),
                 Cdouble,
                 ( Ptr{Cdouble},
                   Ptr{Cdouble},

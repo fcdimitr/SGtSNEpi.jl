@@ -1,3 +1,4 @@
+![SG-t-SNE-Π](assets/logo.png)
 
 # SG-t-SNE-Π: Swift Graph Embedding
 
