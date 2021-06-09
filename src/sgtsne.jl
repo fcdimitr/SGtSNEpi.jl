@@ -2,18 +2,22 @@
 @doc raw"""
     sgtsnepi( A::AbstractMatrix )
     sgtsnepi( G::AbstractGraph )
-    sgtsnepi( X::AbstractMatrix )
 
 Call SG-t-SNE-Π on the input graph, given as either a sparse adjacency
-matrix $A$ or a graph object $G$.  Alternatively, the input can be a
-point-cloud data set $X$ (coordinates) of size $N \times D$.
+matrix $A$ or a graph object $G$. Alternatively, the input can be a
+point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
+
+    sgtsnepi( X::AbstractMatrix )
 
 ## Optional arguments
 
 - `d=2`: number of dimensions (embedding space)
+- `λ=10`: SG-t-SNE scaling factor
+
+## More options (for experts)
+
 - `max_iter=1000`: number of iterations
 - `early_exag=250`: number of early exageration iterations
-- `λ=10`: SG-t-SNE scaling factor
 - `np=0`: number of processos (set 0 to automatically detect)
 - `Y0=nothing`: initial distribution in embedding space (randomly selected if `nothing`)
 - `profile=false`: disable/enable profiling. If enabled the function
@@ -21,7 +25,7 @@ point-cloud data set $X$ (coordinates) of size $N \times D$.
   coordinates, `t` are the execution times per iteration and `g` is
   the grid size per iteration.
 
-## Optional arguments for point-cloud data embedding
+## Special options for point-cloud data embedding
 
 - `u=10`: perplexity
 - `k=3*u`: number of nearest neighbors (for kNN formation)
@@ -29,10 +33,12 @@ point-cloud data set $X$ (coordinates) of size $N \times D$.
 
 ## Notes
 
-- Isolated are embedded at (0,0,...)
+- Isolated are placed randomly on the top-right corner of the
+  embedding space
 
 - The function tries to automatically detect whether the input matrix
-  represents an adjacency matrix or data coordinates. The user may
+  represents an adjacency matrix or data coordinates. In ambiquous cases,
+  such as a square matrix of data coordinates, the user may
   specify the type using the optional argument `type`
   - `:graph`: the input is an adjacency matrix
   - `:coord`: the input is the data coordinates
@@ -160,7 +166,7 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
   cols = Int32.( P.colptr .- 1 );
   vals = Float64.( P.nzval );
 
-  ptr_y = ccall( dlsym( libsgtsnepi, :tsnepi_c ), Ptr{Cdouble},
+  ptr_y = ccall( ( :tsnepi_c, "libsgtsnepi" ), Ptr{Cdouble},
                  ( Ptr{Ptr{Cdouble}}, Ptr{Cint},
                    Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble},
                    Ptr{Cdouble},

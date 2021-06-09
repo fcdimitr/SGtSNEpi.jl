@@ -8,8 +8,7 @@ using NearestNeighbors, FLANN
 export sgtsnepi
 
 # SG-t-SNE C library
-libsgtsnepi = C_NULL
-
+const libsgtsnepi = C_NULL
 
 # C struct to hold sparse matrix
 struct _c_sparse
