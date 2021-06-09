@@ -1,7 +1,13 @@
 @doc raw"""
     show_embedding( Y [, L] )
 
-Visualization 2D embedding coordinates using Makie
+Visualization of 2D embedding coordinates $Y$ using Makie.
+If labels $L$ are provided, points are colored accroding to
+the labels.
+
+## Optional arguments (for experts)
+
+- `A=nothing`: Adjacency matrix; if provided, edges are shown
 
 """
 function show_embedding(

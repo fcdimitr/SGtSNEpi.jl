@@ -15,5 +15,5 @@ following functions
 
 ```@autodocs
 Modules = [SGtSNEpi]
-Pages = ["sgtsne.jl", "qq.jl"]
+Pages = ["sgtsne.jl", "show_embedding.jl"]
 ```
