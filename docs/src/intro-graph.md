@@ -56,7 +56,7 @@ nothing # hide
 
 ## Visualization
 
-To reproduce the next steps, you need to install the following packages
+To reproduce the next steps, we need to install the following packages
 
 ```
 Pkg.add(["CairoMakie", "Colors"])
@@ -64,8 +64,7 @@ Pkg.add(["CairoMakie", "Colors"])
 
 ### Show embedding
 
-Finally, we show the embedding, using the custom function defined at
-the beginning of the file
+Finally, we show the embedding, using the provided visualization function
 
 ```@example 2
 using CairoMakie, Colors, LinearAlgebra

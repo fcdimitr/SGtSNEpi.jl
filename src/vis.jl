@@ -1,3 +1,9 @@
+@doc raw"""
+    show_embedding( Y [, L] )
+
+Visualization 2D embedding coordinates using Makie
+
+"""
 function show_embedding(
   Y, L::Vector{Int} = zeros( Int, size(Y,1) );
   cmap = distinguishable_colors(
