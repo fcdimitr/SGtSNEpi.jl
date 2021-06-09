@@ -168,7 +168,7 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
   cols = Int32.( P.colptr .- 1 );
   vals = Float64.( P.nzval );
 
-  ptr_y = ccall( ( :tsnepi_c, "libsgtsnepi" ), Ptr{Cdouble},
+  ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
                  ( Ptr{Ptr{Cdouble}}, Ptr{Cint},
                    Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble},
                    Ptr{Cdouble},
@@ -202,7 +202,7 @@ function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_e
   cols = Int32.( P.colptr .- 1 );
   vals = Float64.( P.nzval );
 
-  ptr_y = ccall( dlsym( libsgtsnepi, :tsnepi_c ), Ptr{Cdouble},
+  ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
                  ( Ptr{Ptr{Cdouble}}, Ptr{Cint},
                    Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble},
                    Ptr{Cdouble},
