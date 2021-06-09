@@ -2,26 +2,33 @@
 @doc raw"""
     sgtsnepi( A::AbstractMatrix )
     sgtsnepi( G::AbstractGraph )
-    sgtsnepi( X::AbstractMatrix )
 
 Call SG-t-SNE-Π on the input graph, given as either a sparse adjacency
-matrix $A$ or a graph object $G$.  Alternatively, the input can be a
-point-cloud data set $X$ (coordinates) of size $N \times D$.
+matrix $A$ or a graph object $G$. Alternatively, the input can be a
+point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
+
+    sgtsnepi( X::AbstractMatrix )
 
 ## Optional arguments
 
 - `d=2`: number of dimensions (embedding space)
+- `λ=10`: SG-t-SNE scaling factor
+
+## More options (for experts)
+
 - `max_iter=1000`: number of iterations
 - `early_exag=250`: number of early exageration iterations
-- `λ=10`: SG-t-SNE scaling factor
-- `np=0`: number of processos (set 0 to automatically detect)
+- `np=0`: number of processors (set to 0 to use all available cores)
 - `Y0=nothing`: initial distribution in embedding space (randomly selected if `nothing`)
+- `h=0`: grid side length (0 for default values)
+- `eta=200.0`: learning parameter
+- `bound_box=Inf`: maximum bounding box (rescaling after that)
 - `profile=false`: disable/enable profiling. If enabled the function
   return a 3-tuple: `(Y, t, g)`, where `Y` is the embedding
   coordinates, `t` are the execution times per iteration and `g` is
   the grid size per iteration.
 
-## Optional arguments for point-cloud data embedding
+## Special options for point-cloud data embedding
 
 - `u=10`: perplexity
 - `k=3*u`: number of nearest neighbors (for kNN formation)
@@ -29,10 +36,12 @@ point-cloud data set $X$ (coordinates) of size $N \times D$.
 
 ## Notes
 
-- Isolated are embedded at (0,0,...)
+- Isolated are placed randomly on the top-right corner of the
+  embedding space
 
 - The function tries to automatically detect whether the input matrix
-  represents an adjacency matrix or data coordinates. The user may
+  represents an adjacency matrix or data coordinates. In ambiquous cases,
+  such as a square matrix of data coordinates, the user may
   specify the type using the optional argument `type`
   - `:graph`: the input is an adjacency matrix
   - `:coord`: the input is the data coordinates
@@ -40,7 +49,7 @@ point-cloud data set $X$ (coordinates) of size $N \times D$.
 
 
 # Examples
-```jldoctest; filter = [r".*seconds.*", r".*Attractive.*"]
+```jldoctest; filter = [r".*error is.*", r".*seconds.*", r".*Attractive.*"]
 julia> using LightGraphs
 
 julia> Y0 = repeat(1:1000,1,2) / 1000.0;
@@ -49,21 +58,17 @@ julia> G = circular_ladder_graph( 500 )
 {1000, 1500} undirected simple Int64 graph
 
 julia> Y = sgtsnepi( G; Y0 = Y0, np = 4, early_exag = 100, max_iter = 250 );
-input nnz: 3000
 Number of vertices: 1000
 Embedding dimensions: 2
 Rescaling parameter λ: 10
 Early exag. multiplier α: 12
 Maximum iterations: 250
 Early exag. iterations: 100
+Learning rate: 200
 Box side length h: 0.7
 Drop edges originating from leaf nodes? 0
 Number of processes: 4
-m = 1000 | n = 1000 | nnz = 3000
 1000 out of 1000 nodes already stochastic
-m = 1000 | n = 1000 | nnz = 3000
-m = 1000 | n = 1000 | nnz = 3000
-m = 1000 | n = 1000 | nnz = 3000
 m = 1000 | n = 1000 | nnz = 3000
 Working with double precision
 Iteration 1: error is 96.9204
@@ -85,12 +90,17 @@ function sgtsnepi( A::AbstractMatrix ;
                    Y0 = nothing,
                    profile = false, np = 0,
                    type = nothing,
+                   h = 0,
                    u = 10,
                    k = 3*u,
+                   eta = 200.0,
+                   bound_box = Inf,
                    knn_type = ( size(A,1) < 10_000 ) ? :exact : :flann )
 
   A = ( isequal( size(A)... ) && type != :coord ) ? A :
     _form_knn_graph( A, u, k ; knn_type = knn_type )
+
+  A = issparse( A ) ? A : sparse( A )
 
   nnz( diag(A) ) > 0 && @warn "$( nnz( diag(A) ) ) elements have self-loops; setting distances to 0"
   A = A - spdiagm( 0 => diag( A ) )
@@ -110,19 +120,39 @@ function sgtsnepi( A::AbstractMatrix ;
   Y = zeros( n, d );
 
   if (profile)
-    Y[idx,:],t,g = _sgtsnepi_profile_c( P, d, max_iter, early_exag, λ; Y0 = Y0, np = np )
+    Y[idx,:],t,g = _sgtsnepi_profile_c( P, d, max_iter, early_exag, λ; Y0 = Y0, np = np, h = h, bb = bound_box, eta = eta )
+    Y = _fix_isolated( Y, idx )
     Y,t,g
   else
-    Y[idx,:] = _sgtsnepi_c( P, d, max_iter, early_exag, λ; Y0 = Y0, np = np )
+    Y[idx,:] = _sgtsnepi_c( P, d, max_iter, early_exag, λ; Y0 = Y0, np = np, h = h, bb = bound_box, eta = eta )
+    Y = _fix_isolated( Y, idx )
     Y
   end
+
+
+end
+
+function _fix_isolated( Y, idx )
+
+  n_isolated = sum(.!idx)
+  d = size( Y, 2 )
+
+  if n_isolated == 0
+    return Y
+  end
+
+  corner = maximum( Y[idx,:]; dims = 1 )
+
+  Y[.!idx,:] .= corner .* ( 1.0 .+ rand( n_isolated, d ) ./ 10.0 )
+
+  Y
 
 end
 
 function colstoch(A)
   idxKeep = vec( sum(A,dims=1) ) .!= 0;
 
-  !all( idxKeep ) && @warn "$( sum( .! idxKepp ) ) isolated nodes; they are placed at (0,0,...)"
+  !all( idxKeep ) && @warn "$( sum( .! idxKeep ) ) isolated nodes; they are placed at (0,0,...)"
 
   A = A[idxKeep,idxKeep]
   D = spdiagm( 0 => 1 ./ vec( sum(A;dims=1) ) );
@@ -130,7 +160,7 @@ function colstoch(A)
   P, idxKeep
 end
 
-function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real; Y0 = C_NULL, np = 0 )
+function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real; Y0 = C_NULL, np = 0, h = 0.0, bb = 1000, eta = 200.0 )
 
   Y0 = (Y0 == C_NULL) ? C_NULL : permutedims( Y0 )
 
@@ -138,18 +168,20 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
   cols = Int32.( P.colptr .- 1 );
   vals = Float64.( P.nzval );
 
-  ptr_y = ccall( dlsym( libsgtsnepi, :tsnepi_c ), Ptr{Cdouble},
+  ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
                  ( Ptr{Ptr{Cdouble}}, Ptr{Cint},
                    Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble},
                    Ptr{Cdouble},
                    Cint,
                    Cint, Cdouble, Cint, Cint,
+                   Cdouble, Cdouble, Cdouble,
                    Cint, Cint ),
                  C_NULL, C_NULL,
                  rows, cols, vals,
                  Y0,
                  Int32.( nnz(P) ),
                  d, λ, max_iter, early_exag,
+                 h, bb, eta,
                  Int32.( size(P,1) ), np )
 
   Y = permutedims( unsafe_wrap( Array, ptr_y, (d, size(P,1)) ) )
@@ -157,7 +189,7 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
 end
 
 
-function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real; Y0 = C_NULL, np = 0 )
+function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real; Y0 = C_NULL, np = 0, h = 0.0, bb = 1000, eta = 200.0 )
 
   Y0 = (Y0 == C_NULL) ? C_NULL : permutedims( Y0 )
 
@@ -170,18 +202,20 @@ function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_e
   cols = Int32.( P.colptr .- 1 );
   vals = Float64.( P.nzval );
 
-  ptr_y = ccall( dlsym( libsgtsnepi, :tsnepi_c ), Ptr{Cdouble},
+  ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
                  ( Ptr{Ptr{Cdouble}}, Ptr{Cint},
                    Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble},
                    Ptr{Cdouble},
                    Cint,
                    Cint, Cdouble, Cint, Cint,
+                   Cdouble, Cdouble, Cdouble,
                    Cint, Cint ),
                  ptr_timers, grid_sizes,
                  rows, cols, vals,
                  Y0,
                  Int32.( nnz(P) ),
                  d, λ, max_iter, early_exag,
+                 h, bb, eta,
                  Int32.( size(P,1) ), np )
 
   Y = permutedims( unsafe_wrap( Array, ptr_y, (d, size(P,1)) ) )

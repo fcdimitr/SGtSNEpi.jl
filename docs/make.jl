@@ -1,6 +1,8 @@
 using SGtSNEpi
 using Documenter
 using DocumenterCitations
+using CairoMakie
+using Makie
 
 bib = CitationBibliography(joinpath(@__DIR__, "sgtsnepi.bib"))
 
@@ -15,11 +17,16 @@ makedocs( bib,
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://fcdimitr.github.io/SGtSNEpi.jl",
         assets=String[],
+        sidebar_sitename=false,
     ),
-    doctest = false,
+    doctest = true,
     pages=[
-      "Home" => "index.md",
-      "API" => "API.md",
+      "Overview" => "index.md",
+      "Getting started"  => [
+        "Point-cloud data embedding" => "intro-point-cloud.md",
+        "Graph embedding" => "intro-graph.md",
+      ],
+      "API (Advanced)" => "API.md",
     ],
 )
 

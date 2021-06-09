@@ -1,8 +1,9 @@
 # ========== EMBED FOOTBALL GRAPH ==========
 
-using SGtSNEpi, MatrixDepot, Random, LinearAlgebra, Colors
+using SGtSNEpi, MatrixDepot, Random, LinearAlgebra, Colors, SparseArrays
 
 md = mdopen("Newman/football")
+MatrixDepot.addmetadata!(md.data)
 A = sparse( md.A )
 L = Int32.( md.nodevalue )
 n = size(A,1)
