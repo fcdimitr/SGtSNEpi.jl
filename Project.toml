@@ -16,6 +16,7 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 sgtsnepi_jll = "c2c51ba6-9464-585c-93d5-ba434ab08fad"
 
 [compat]
+LightGraphs = "1"
 FLANN = "1"
 Distances = "0.10"
 NearestNeighbors = "0.4"
