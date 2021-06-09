@@ -1,14 +1,13 @@
 module SGtSNEpi
 
 # Dependent package
+using sgtsnepi_jll
 using LinearAlgebra, LightGraphs, SparseArrays, Libdl
 using NearestNeighbors, FLANN
 
 # export
 export sgtsnepi
 
-# SG-t-SNE C library
-libsgtsnepi = C_NULL
 
 # C struct to hold sparse matrix
 struct _c_sparse
@@ -29,10 +28,6 @@ include( "qq.jl" )
 
 # Initialization
 function __init__()
-
-  global libsgtsnepi = Libdl.dlopen(
-    find_library( "libsgtsnepi", ["/usr/local/lib"] )
-  )
 
 end
 
