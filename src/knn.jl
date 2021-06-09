@@ -35,7 +35,7 @@ function _perplexity_equalize_c( I::Matrix{Int32}, D::Matrix{Float64}, u::Number
   k = size(I,1)-1
   n = size(I,2)
 
-  c_m = ccall( dlsym( libsgtsnepi, :perplexityEqualization ), _c_sparse,
+  c_m = ccall( ( :perplexityEqualization, libsgtsnepi ), _c_sparse,
                  ( Ptr{Cint},
                    Ptr{Cdouble},
                    Cint,
