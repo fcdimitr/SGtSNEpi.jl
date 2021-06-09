@@ -8,20 +8,32 @@ using Makie
 
   @testset "$type knn" for type ∈ [:exact, :flann]
 
-    @testset "d = $d" for d ∈ 1:3
+    @testset "profile $profile" for profile ∈ [true, false]
 
-      n = 5000
+      @testset "d = $d" for d ∈ 1:3
 
-      X = rand( n, 50 )
+        n = 5000
 
-      Y = sgtsnepi( X; d = d, knn_type = type, max_iter = 300, early_exag = 150 )
+        X = rand( n, 50 )
 
-      @test size( Y ) == (n, d)
+        Y = sgtsnepi( X; d = d, knn_type = type,
+                      max_iter = 300, early_exag = 150,
+                      profile = profile )
+
+        if profile == true
+          @test length( Y ) == 3
+          @test size( Y[1] ) == (n, d)
+          @test size( Y[2] ) == (6, 300)
+          @test length( Y[3] ) == 300
+        else
+          @test size( Y ) == (n, d)
+        end
+
+      end
 
     end
 
   end
-
 
   @testset "graph" begin
 
@@ -31,6 +43,10 @@ using Makie
       A = sprand( n, n, 0.05 )
       A = A + A'
       G = Graph( A )
+
+      # check isolated nodes
+      A[:,1:5] .= 0
+      A[1:5,:] .= 0
 
       Y = sgtsnepi( A; d = d, max_iter = 300, early_exag = 150 )
       @test size( Y ) == (n, d)
@@ -75,5 +91,19 @@ using Makie
     @test typeof( show_embedding( Y, L ; A = A ) ) == Figure
 
   end
+
+  @testset "make sure errors are thrown" begin
+
+    n = 5000
+
+    X = rand( n, 50 )
+
+    @test_throws Exception sgtsnepi( X; d = 2, knn_type = :other,
+                                     max_iter = 300, early_exag = 150 )
+
+    @test_throws Exception qq( X; type = :other )
+
+  end
+
 
 end
