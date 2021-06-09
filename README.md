@@ -1,3 +1,7 @@
+<div align="center">
+    <img src="https://raw.githubusercontent.com/fcdimitr/SGtSNEpi.jl/master/docs/src/assets/logo.png" alt="SGtSNEpi.jl" width="480">
+</div>
+
 # SG-t-SNE-Π: Swift Graph Embedding
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://fcdimitr.github.io/SGtSNEpi.jl/stable)
