@@ -23,10 +23,10 @@ makedocs( bib,
     pages=[
       "Overview" => "index.md",
       "Getting started"  => [
-        "Point-cloud data" => "intro-point-cloud.md",
-        "Graph data" => "intro-graph.md",
+        "Point-cloud data embedding" => "intro-point-cloud.md",
+        "Graph embedding" => "intro-graph.md",
       ],
-      "API" => "API.md",
+      "API (Advanced)" => "API.md",
     ],
 )
 
