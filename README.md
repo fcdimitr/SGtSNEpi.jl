@@ -7,6 +7,7 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://fcdimitr.github.io/SGtSNEpi.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://fcdimitr.github.io/SGtSNEpi.jl/dev)
 [![Build Status](https://github.com/fcdimitr/SGtSNEpi.jl/workflows/CI/badge.svg)](https://github.com/fcdimitr/SGtSNEpi.jl/actions)
+[![Coverage](https://codecov.io/gh/fcdimitr/SGtSNEpi.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/fcdimitr/SGtSNEpi.jl)
 
 We provide a `Julia` interface, i.e., a wrapper to SG-t-SNE-Π, which
 is a high-performance software for swift embedding of a large, sparse
