@@ -34,7 +34,7 @@ X, L = MNIST.traindata(Float64);
 X = cat( X, MNIST.testdata(Float64)[1] ; dims = 3 );
 L = cat( L, MNIST.testdata(Float64)[2] ; dims = 1 );
 
-L = Int32.( vec( L ) );  # make sure labels is an integer vector
+L = Int.( vec( L ) );  # make sure labels is an integer vector
 
 n = size( X, 3 );
 
@@ -83,13 +83,84 @@ To reproduce the next steps, you need to install the following packages
 Pkg.add(["CairoMakie", "Colors"])
 ```
 
+### Helper function
+
+```@example 1
+using CairoMakie, Colors, LinearAlgebra, SparseArrays
+
+function show_embedding(
+  Y, L::Vector{Int} = zeros( Int, size(Y,1) );
+  cmap = distinguishable_colors(
+    maximum(L) - minimum(L) + 1,
+    [RGB(1,1,1), RGB(0,0,0)], dropseed=true),
+  A = nothing,
+  res  = (800, 800),
+  lwd_in  = 0.5,
+  lwd_out = 0.3,
+  edge_alpha = 0.2,
+  clr_out = colorant"#aabbbbbb",
+  mrk_size = 4,
+  size_label = 24 )
+
+
+  function _plot_lines!( ax, Y, i, j, idx, color, lwd )
+    ii = vec( [reshape( Y[ vcat( i[idx], j[idx] ), 1 ], (Int32.(sum(idx)), 2) ) NaN*zeros(sum(idx))]' )
+    jj = vec( [reshape( Y[ vcat( i[idx], j[idx] ), 2 ], (Int32.(sum(idx)), 2) ) NaN*zeros(sum(idx))]' )
+
+    lines!( ax, ii, jj, color = color, linewidth = lwd )
+
+  end
+
+
+  n = size( Y, 1 )
+
+  L .= L .- minimum( L )
+  L_u = sort( unique( L ) )
+  nc  = length( L_u )
+
+  f = Figure(resolution = res)
+  ax = (nc>1) ? CairoMakie.Axis(f[2, 1]) : CairoMakie.Axis(f[1, 1])
+
+
+  if !isnothing( A )
+    i,j = findnz( tril(A) )
+    for kk ∈ L_u
+      idx_inner = map( (x,y) -> x == y && x == kk, L[i], L[j] )
+      _plot_lines!( ax, Y, i, j, idx_inner, RGBA(cmap[kk+1], edge_alpha), lwd_in )
+    end
+    idx_cross = map( (x,y) -> x != y, L[i], L[j] )
+    _plot_lines!( ax, Y, i, j, idx_cross, colorant"#aabbbbbb", lwd_out )
+  end
+
+  scatter!(ax, Y[:,1], Y[:,2], color = L, colormap = cmap,
+           markersize = mrk_size);
+  ax.aspect = DataAspect();
+
+  lgnd_elem = [MarkerElement(color = cmap[i+1],
+                             marker = :circle,
+                             markersize = 20,
+                             strokecolor = :black) for i = L_u];
+
+
+  if nc > 1
+    Legend(f[1, 1], lgnd_elem, string.( sort( unique(L) ) ),
+           orientation = :horizontal, tellwidth = false, tellheight = true,
+           labelsize = size_label);
+  end
+
+  f
+
+end
+
+```
+
+### Visualization
+
 We visualize the $70{,}000$ digits on the 2D embedding space, colored
 by their class. For this purpose, we use the routine `vis_embedding`.
 
 
 ```@example 1
-using CairoMakie, Colors
 
-vis_sgtsnepi( Y, L; res = (2000, 2000) )
-
+show_embedding( Y, L; res = (2000, 2000) )
 ```

@@ -791,6 +791,12 @@ git-tree-sha1 = "5cf525d97caf86d29307150fcba763a64eaa9cbe"
 uuid = "7eb4fadd-790c-5f42-8a69-bfa0b872bfbf"
 version = "1.1.0"
 
+[[MatrixMarket]]
+deps = ["Compat", "SparseArrays"]
+git-tree-sha1 = "54d39ccb57d29aefa666418bca8ca5598ebd8225"
+uuid = "4d4711f2-db25-561a-b6b3-d35e7d4047d3"
+version = "0.3.1"
+
 [[MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "Random", "Sockets"]
 git-tree-sha1 = "1c38e51c3d08ef2278062ebceade0e46cefc96fe"
@@ -1024,7 +1030,7 @@ uuid = "6038ab10-8711-5258-84ad-4b1120ba62dc"
 version = "1.0.2"
 
 [[SGtSNEpi]]
-deps = ["Distances", "FLANN", "Libdl", "LightGraphs", "LinearAlgebra", "NearestNeighbors", "SparseArrays"]
+deps = ["DataDeps", "Distances", "FLANN", "Libdl", "LightGraphs", "LinearAlgebra", "NearestNeighbors", "SparseArrays"]
 path = ".."
 uuid = "e6c19c8d-e382-4a50-b2c6-174ddd647730"
 version = "0.1.0"

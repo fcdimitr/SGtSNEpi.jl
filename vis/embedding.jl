@@ -1,4 +1,4 @@
-using CairoMakie, Colors, LinearAlgebra
+using Makie, Colors, LinearAlgebra
 
 function show_embedding(
   Y, L::Vector{Int} = zeros( Int, size(Y,1) );

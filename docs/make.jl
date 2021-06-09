@@ -19,7 +19,7 @@ makedocs( bib,
         assets=String[],
         sidebar_sitename=false,
     ),
-    doctest = false,
+    doctest = true,
     pages=[
       "Overview" => "index.md",
       "Getting started"  => [
