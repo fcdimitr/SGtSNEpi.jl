@@ -1030,7 +1030,7 @@ uuid = "6038ab10-8711-5258-84ad-4b1120ba62dc"
 version = "1.0.2"
 
 [[SGtSNEpi]]
-deps = ["DataDeps", "Distances", "FLANN", "Libdl", "LightGraphs", "LinearAlgebra", "NearestNeighbors", "SparseArrays"]
+deps = ["Distances", "FLANN", "Libdl", "LightGraphs", "LinearAlgebra", "NearestNeighbors", "SparseArrays", "sgtsnepi_jll"]
 path = ".."
 uuid = "e6c19c8d-e382-4a50-b2c6-174ddd647730"
 version = "0.1.0"
@@ -1284,6 +1284,12 @@ git-tree-sha1 = "cc4bf3fdde8b7e3e9fa0351bdeedba1cf3b7f6e6"
 uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
 version = "1.5.0+0"
 
+[[cilkrts_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "45f98face02f3e1696a1ca4152268433121ba7b1"
+uuid = "71772805-00bc-5a29-9044-a26d819b7806"
+version = "0.1.2+0"
+
 [[isoband_jll]]
 deps = ["Libdl", "Pkg"]
 git-tree-sha1 = "a1ac99674715995a536bbce674b068ec1b7d893d"
@@ -1321,6 +1327,12 @@ uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
 [[p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
+
+[[sgtsnepi_jll]]
+deps = ["Artifacts", "FFTW_jll", "JLLWrappers", "Libdl", "Pkg", "cilkrts_jll"]
+git-tree-sha1 = "bcb6ac7123a10e9bb584208b2dce4bee798d2525"
+uuid = "c2c51ba6-9464-585c-93d5-ba434ab08fad"
+version = "1.0.2+0"
 
 [[x264_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]

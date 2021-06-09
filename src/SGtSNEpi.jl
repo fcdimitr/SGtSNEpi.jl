@@ -4,9 +4,10 @@ module SGtSNEpi
 using sgtsnepi_jll
 using LinearAlgebra, LightGraphs, SparseArrays, Libdl
 using NearestNeighbors, FLANN
+using Makie, Colors, LinearAlgebra
 
 # export
-export sgtsnepi
+export sgtsnepi, show_embedding
 
 
 # C struct to hold sparse matrix
@@ -25,6 +26,7 @@ end
 include( "knn.jl" )
 include( "sgtsne.jl" )
 include( "qq.jl" )
+include( "vis.jl" )
 
 # Initialization
 function __init__()
