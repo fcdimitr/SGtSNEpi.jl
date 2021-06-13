@@ -201,7 +201,7 @@ function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_e
 
   Y0 = (Y0 == C_NULL) ? C_NULL : permutedims( Y0 )
 
-  timers = zeros( Float64, 6+12, max_iter );
+  timers = zeros( Float64, 6, max_iter );
   ptr_timers = Ref{Ptr{Cdouble}}([Ref(timers,i) for i=1:size(timers,1):length(timers)]);
 
   grid_sizes = zeros( Int32, max_iter );
