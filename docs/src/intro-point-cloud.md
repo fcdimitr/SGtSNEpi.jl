@@ -19,7 +19,7 @@ using Pkg
 Pkg.add(["MLDatasets", "ImageFeatures", "Random", "Images"])
 ```
 
-## MNIST data
+## Embedding handwritten digits (MNIST data)
 
 The `MNIST` dataset comprises of $60{,}000$ training and $10{,}000$
 testing images of handwritten digits. We shall embed the total of
