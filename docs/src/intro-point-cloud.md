@@ -71,9 +71,12 @@ nothing; # hide
 
 We use SG-t-SNE-Π to embed the data in a 2D space
 
-```@example 1
+```@setup 1
 Y = sgtsnepi(F; Y0 = Y0);
-nothing; # hide
+```
+
+```julia
+Y = sgtsnepi(F; Y0 = Y0);
 ```
 
 ## Visualization
