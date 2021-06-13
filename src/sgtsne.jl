@@ -168,6 +168,12 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
   cols = Int32.( P.colptr .- 1 );
   vals = Float64.( P.nzval );
 
+  if isinf(bb)
+    bb = h * ( size(P, 1) ^ (1/d) ) / 2
+  end
+
+  @debug bb
+
   if h == 0.0
     h = C_NULL
   else
@@ -176,9 +182,7 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
     ( h[end-1] >= max_iter ) || error( "last phase should be equal or greater to max_iter" )
   end
 
-  if isinf(bb)
-    bb = ( size(P, 1) ^ (1/d) ) / 2
-  end
+  @debug h
 
   ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
                  ( Ptr{Ptr{Cdouble}}, Ptr{Cint},
@@ -213,7 +217,13 @@ function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_e
   rows = Int32.( P.rowval .- 1 );
   cols = Int32.( P.colptr .- 1 );
   vals = Float64.( P.nzval );
-  @show h
+
+  if isinf(bb)
+    bb = h * ( size(P, 1) ^ (1/d) ) / 2
+  end
+
+  @debug bb
+
   if h == 0.0
     h = C_NULL
   else
@@ -222,9 +232,7 @@ function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_e
     ( h[end-1] >= max_iter ) || error( "last phase should be equal or greater to max_iter" )
   end
 
-  if isinf(bb)
-    bb = ( size(P, 1) ^ (1/d) ) / 2
-  end
+  @debug h
 
   ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
                  ( Ptr{Ptr{Cdouble}}, Ptr{Cint},
