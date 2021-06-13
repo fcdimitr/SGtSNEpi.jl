@@ -15,6 +15,10 @@ is a high-performance software for swift embedding of a large, sparse
 graph into a d-dimensional space (d = 1,2,3) on a shared-memory
 computer.
 
+## Installation
+
+To install `SG-t-SNE-Π` through Julia, issue
+
 ```julia
 ] add SGtSNEpi
 ```
