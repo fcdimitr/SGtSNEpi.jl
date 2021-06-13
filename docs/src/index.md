@@ -32,6 +32,20 @@ favorably to UMAP ([scarf](@cite)). This version makes SG-t-SNE readily
 deployable to the Julia ecosystem. More information can be found at
 [SG-t-SNE-Π](https://github.com/fcdimitr/sgtsnepi).
 
+## Installation
+
+To install `SG-t-SNE-Π` through Julia, issue
+
+```julia
+] add SGtSNEpi
+```
+
+We provide two use cases:
+ - Point cloud data embedding [Point-cloud data embedding](@ref)
+ - Graph embedding [Graph embedding](@ref)
+ 
+For full documentation of the functions exported by `SG-t-SNE-Π`, see
+the [API](@ref)
 
 ## References
 
