@@ -13,5 +13,12 @@
 We provide a `Julia` interface, i.e., a wrapper to SG-t-SNE-Π, which
 is a high-performance software for swift embedding of a large, sparse
 graph into a d-dimensional space (d = 1,2,3) on a shared-memory
-computer.  See [the full documentation](https://fcdimitr.github.io/SGtSNEpi.jl/stable).
+computer.
 
+```julia
+] add SGtSNEpi
+```
+
+See [the full
+documentation](https://fcdimitr.github.io/SGtSNEpi.jl/stable) for more
+details.
