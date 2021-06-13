@@ -168,13 +168,21 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
   cols = Int32.( P.colptr .- 1 );
   vals = Float64.( P.nzval );
 
+  if h == 0.0
+    h = C_NULL
+  else
+    h = Float64.( isempty(size(h)) ? [max_iter+1, h] : h )
+    ( length( h ) % 2 ) == 0 || error( "h must have even number of elements" )
+    ( h[end-1] >= max_iter ) || error( "last phase should be equal or greater to max_iter" )
+  end
+
   ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
                  ( Ptr{Ptr{Cdouble}}, Ptr{Cint},
                    Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble},
                    Ptr{Cdouble},
                    Cint,
                    Cint, Cdouble, Cint, Cint,
-                   Cdouble, Cdouble, Cdouble,
+                   Ptr{Cdouble}, Cdouble, Cdouble,
                    Cint, Cint ),
                  C_NULL, C_NULL,
                  rows, cols, vals,
@@ -201,6 +209,14 @@ function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_e
   rows = Int32.( P.rowval .- 1 );
   cols = Int32.( P.colptr .- 1 );
   vals = Float64.( P.nzval );
+  @show h
+  if h == 0.0
+    h = C_NULL
+  else
+    h = Float64.( isempty(size(h)) ? [max_iter+1, h] : h )
+    ( length( h ) % 2 ) == 0 || error( "h must have even number of elements" )
+    ( h[end-1] >= max_iter ) || error( "last phase should be equal or greater to max_iter" )
+  end
 
   ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
                  ( Ptr{Ptr{Cdouble}}, Ptr{Cint},
@@ -208,7 +224,7 @@ function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_e
                    Ptr{Cdouble},
                    Cint,
                    Cint, Cdouble, Cint, Cint,
-                   Cdouble, Cdouble, Cdouble,
+                   Ptr{Cdouble}, Cdouble, Cdouble,
                    Cint, Cint ),
                  ptr_timers, grid_sizes,
                  rows, cols, vals,
