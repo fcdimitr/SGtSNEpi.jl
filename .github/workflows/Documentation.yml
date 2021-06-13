@@ -3,11 +3,7 @@ on:
   push:
     branches:
       - master
-    paths:
-      - "**.jl"
-      - "docs/**"
-      - "Project.toml"
-      - "Manifest.toml"
+    tags: '*'
   pull_request:
     branches:
       - master
@@ -30,14 +26,14 @@ jobs:
           # * https://github.com/JuliaLang/Pkg.jl/issues/2011
           # * https://github.com/JuliaRegistries/General/issues/16777
           # * https://github.com/JuliaPackaging/PkgServer.jl/issues/60
-      - run: julia --color=yes -e 'using Pkg; VERSION >= v"1.5-" && !isdir(joinpath(DEPOT_PATH[1], "registries", "General")) && Pkg.Registry.add("General")'
-        shell: bash
-        env:
+      #- run: julia --color=yes -e 'using Pkg; VERSION >= v"1.5-" && !isdir(joinpath(DEPOT_PATH[1], "registries", "General")) && Pkg.Registry.add("General")'
+      #  shell: bash
+      #  env:
           # We set `JULIA_PKG_SERVER` only for this step to enforce
           # `Pkg.Registry.add` to use Git.  This way, Pkg.jl can send
           # the request metadata to pkg.julialang.org when installing
           # packages via `Pkg.test`.
-          JULIA_PKG_SERVER: ""
+      #    JULIA_PKG_SERVER: ""
       - run: |
           julia --project=docs -e '
             using Pkg
