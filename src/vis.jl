@@ -13,6 +13,7 @@ colored accroding to the labels.
 - `lwd_in=0.5`: line width for internal edges
 - `lwd_out=0.3`: line width for external edges
 - `edge_alpha=0.2`: the alpha channel for the edges
+- `clr_in=nothing`: set color for all intra-cluster edges (if nothing, color by `cmap`)
 - `clr_out=colorant"#aabbbbbb"`: the color of inter-cluster edges
 - `mrk_size=4`: marker size
 - `size_label:24`: legend label size
@@ -29,6 +30,7 @@ function show_embedding(
   lwd_out = 0.3,
   edge_alpha = 0.2,
   clr_out = colorant"#aabbbbbb",
+  clr_in = nothing,
   mrk_size = 4,
   size_label = 24 )
 
@@ -56,7 +58,11 @@ function show_embedding(
     i,j = findnz( tril(A) )
     for kk ∈ L_u
       idx_inner = map( (x,y) -> x == y && x == kk, L[i], L[j] )
-      _plot_lines!( ax, Y, i, j, idx_inner, RGBA(cmap[kk+1], edge_alpha), lwd_in )
+      if isnothing( clr_in )  # use cmap
+        _plot_lines!( ax, Y, i, j, idx_inner, RGBA(cmap[kk+1], edge_alpha), lwd_in )
+      else
+        _plot_lines!( ax, Y, i, j, idx_inner, clr_in, lwd_in )
+      end
     end
     idx_cross = map( (x,y) -> x != y, L[i], L[j] )
     _plot_lines!( ax, Y, i, j, idx_cross, colorant"#aabbbbbb", lwd_out )
