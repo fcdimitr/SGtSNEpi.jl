@@ -1,13 +1,21 @@
 @doc raw"""
     show_embedding( Y [, L] )
 
-Visualization of 2D embedding coordinates $Y$ using Makie.
-If labels $L$ are provided, points are colored accroding to
-the labels.
+Visualization of 2D embedding coordinates $Y$ using Makie. If the $n
+\times 1$ vector $L$ of vertex memberships is provided, points are
+colored accroding to the labels.
 
 ## Optional arguments (for experts)
 
-- `A=nothing`: Adjacency matrix; if provided, edges are shown
+- `A=nothing`: adjacency matrix; if provided, edges are shown
+- `cmap`: the colormap to use (default to distinguishable colors)
+- `res=(800,800)`: figure resolution
+- `lwd_in=0.5`: line width for internal edges
+- `lwd_out=0.3`: line width for external edges
+- `edge_alpha=0.2`: the alpha channel for the edges
+- `clr_out=colorant"#aabbbbbb"`: the color of inter-cluster edges
+- `mrk_size=4`: marker size
+- `size_label:24`: legend label size
 
 """
 function show_embedding(
