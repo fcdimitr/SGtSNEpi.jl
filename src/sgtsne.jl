@@ -160,7 +160,7 @@ function colstoch(A)
   P, idxKeep
 end
 
-function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real; Y0 = C_NULL, np = 0, h = 0.0, bb = 1000, eta = 200.0 )
+function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real; Y0 = C_NULL, np = 0, h = 0.0, bb = Inf, eta = 200.0 )
 
   Y0 = (Y0 == C_NULL) ? C_NULL : permutedims( Y0 )
 
@@ -174,6 +174,10 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
     h = Float64.( isempty(size(h)) ? [max_iter+1, h] : h )
     ( length( h ) % 2 ) == 0 || error( "h must have even number of elements" )
     ( h[end-1] >= max_iter ) || error( "last phase should be equal or greater to max_iter" )
+  end
+
+  if isinf(bb)
+    bb = ceil( size(P, 1) ^ (1/d) )
   end
 
   ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
@@ -197,7 +201,7 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
 end
 
 
-function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real; Y0 = C_NULL, np = 0, h = 0.0, bb = 1000, eta = 200.0 )
+function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real; Y0 = C_NULL, np = 0, h = 0.0, bb = Inf, eta = 200.0 )
 
   Y0 = (Y0 == C_NULL) ? C_NULL : permutedims( Y0 )
 
@@ -216,6 +220,10 @@ function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_e
     h = Float64.( isempty(size(h)) ? [max_iter+1, h] : h )
     ( length( h ) % 2 ) == 0 || error( "h must have even number of elements" )
     ( h[end-1] >= max_iter ) || error( "last phase should be equal or greater to max_iter" )
+  end
+
+  if isinf(bb)
+    bb = ceil( size(P, 1) ^ (1/d) )
   end
 
   ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
