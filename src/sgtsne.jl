@@ -177,7 +177,7 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
   end
 
   if isinf(bb)
-    bb = ceil( size(P, 1) ^ (1/d) )
+    bb = ( size(P, 1) ^ (1/d) ) / 2
   end
 
   ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
@@ -223,7 +223,7 @@ function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_e
   end
 
   if isinf(bb)
-    bb = ceil( size(P, 1) ^ (1/d) )
+    bb = ( size(P, 1) ^ (1/d) ) / 2
   end
 
   ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
