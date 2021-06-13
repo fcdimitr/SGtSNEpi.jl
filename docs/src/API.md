@@ -4,7 +4,7 @@
 CurrentModule = SGtSNEpi
 ```
 
-[SGtSNEpi.jl](https://github.com/fcdimitr/SGtSNEpi.jl) exposes the
+[SGtSNEpi.jl](https://github.com/fcdimitr/SGtSNEpi.jl) exports the
 following functions
 
 ```@index
