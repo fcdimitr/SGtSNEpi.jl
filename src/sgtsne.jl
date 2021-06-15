@@ -13,26 +13,41 @@ point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
 
 - `d=2`: number of dimensions (embedding space)
 - `λ=10`: SG-t-SNE scaling factor
-
-## More options (for experts)
-
-- `max_iter=1000`: number of iterations
-- `early_exag=250`: number of early exageration iterations
-- `np=0`: number of processors (set to 0 to use all available cores)
-- `Y0=nothing`: initial distribution in embedding space (randomly selected if `nothing`)
-- `h=0`: grid side length (0 for default values)
-- `eta=200.0`: learning parameter
-- `bound_box=Inf`: maximum bounding box (rescaling after that)
-- `profile=false`: disable/enable profiling. If enabled the function
-  return a 3-tuple: `(Y, t, g)`, where `Y` is the embedding
-  coordinates, `t` are the execution times per iteration and `g` is
-  the grid size per iteration.
+- `version=SGtSNEpi.NUCONV_BL`: the version of the algorithm for computing
+   repulsive terms. Options are
+     - `SGtSNEpi.NUCONV_BL` (default): band-limited, approximated via
+        non-uniform convolution
+     - `SGtSNEpi.NUCONV`: approximated via non-uniform convolution (higher
+        resolution than `SGtSNEpi.NUCONV_BL`, slower execution time)
+     - `SGtSNEpi.EXACT`: no approximation; quadratic complexity, use only with
+        small datsets
 
 ## Special options for point-cloud data embedding
 
 - `u=10`: perplexity
 - `k=3*u`: number of nearest neighbors (for kNN formation)
 - `knn_type=( size(A,1) < 10_000 ) ? :exact : :flann`: Exact or approximate kNN
+
+## More options (for experts)
+
+- `max_iter=1000`: number of iterations
+- `early_exag=250`: number of early exageration iterations
+- `alpha=12`: exaggeration strength (applicable for first `early_exag` iterations)
+- `Y0=nothing`: initial distribution in embedding space (randomly generated if `nothing`).
+  You should set this parameter to generate reproducible results.
+- `eta=200.0`: learning parameter
+- `drop_leaf=false`: remove edges connecting to leaf nodes
+
+## Advanced options (performance/accuracy tradeoff)
+
+- `np=0`: number of processors (set to 0 to use all available cores)
+- `h=1.0`: grid side length
+- `profile=false`: disable/enable profiling. If enabled the function
+   return a 3-tuple: `(Y, t, g)`, where `Y` is the embedding
+   coordinates, `t` are the execution times per iteration and `g` is
+   the grid size per iteration.
+- `fftw_single:true`: run single-precision FFTW. Double-precision is
+   x1.5 and without any observable accuracy improvement.
 
 ## Notes
 
@@ -84,17 +99,24 @@ Iteration 249: error is 1.65057 (50 iterations in 0.213149 seconds)
 """
 sgtsnepi( G::AbstractGraph ; kwargs... ) = sgtsnepi( Float64.( adjacency_matrix(G) ) ; kwargs..., type = :graph )
 
+@enum SGTSNEPI_VERSION NUCONV_BL EXACT NUCONV
+
 function sgtsnepi( A::AbstractMatrix ;
                    d = 2, λ = 10,
                    max_iter = 1000, early_exag = 250,
                    Y0 = nothing,
                    profile = false, np = 0,
+                   version::SGTSNEPI_VERSION = NUCONV_BL,
                    type = nothing,
-                   h = 0,
+                   h = 1.0,
                    u = 10,
                    k = 3*u,
                    eta = 200.0,
-                   bound_box = Inf,
+                   alpha = 12,
+                   fftw_single = true,
+                   exact = version == EXACT ? true : false,
+                   drop_leaf = false,
+                   bound_box = version == NUCONV_BL ? -1.0 : Inf,
                    knn_type = ( size(A,1) < 10_000 ) ? :exact : :flann )
 
   A = ( isequal( size(A)... ) && type != :coord ) ? A :
@@ -119,12 +141,16 @@ function sgtsnepi( A::AbstractMatrix ;
 
   Y = zeros( n, d );
 
+  do_sgtsne_c() = _sgtsnepi_c( P, d, max_iter, early_exag, λ;
+                               Y0 = Y0, np = np, h = h, bb = bound_box, eta = eta, run_exact = exact,
+                               fftw_single, alpha, profile, drop_leaf)
+
   if (profile)
-    Y[idx,:],t,g = _sgtsnepi_profile_c( P, d, max_iter, early_exag, λ; Y0 = Y0, np = np, h = h, bb = bound_box, eta = eta )
+    Y[idx,:],t,g = do_sgtsne_c()
     Y = _fix_isolated( Y, idx )
     Y,t,g
   else
-    Y[idx,:] = _sgtsnepi_c( P, d, max_iter, early_exag, λ; Y0 = Y0, np = np, h = h, bb = bound_box, eta = eta )
+    Y[idx,:] = do_sgtsne_c()
     Y = _fix_isolated( Y, idx )
     Y
   end
@@ -160,100 +186,67 @@ function colstoch(A)
   P, idxKeep
 end
 
-function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real; Y0 = C_NULL, np = 0, h = 0.0, bb = Inf, eta = 200.0 )
-
-  Y0 = (Y0 == C_NULL) ? C_NULL : permutedims( Y0 )
-
-  rows = Int32.( P.rowval .- 1 );
-  cols = Int32.( P.colptr .- 1 );
-  vals = Float64.( P.nzval );
-
-  if isinf(bb)
-    bb = h * ( size(P, 1) ^ (1/d) ) / 2
-  end
-
-  @debug bb
-
-  if h == 0.0
-    h = C_NULL
-  else
-    h = Float64.( isempty(size(h)) ? [max_iter+1, h] : h )
-    ( length( h ) % 2 ) == 0 || error( "h must have even number of elements" )
-    ( h[end-1] >= max_iter ) || error( "last phase should be equal or greater to max_iter" )
-  end
-
-  @debug h
-
-  ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
-                 ( Ptr{Ptr{Cdouble}}, Ptr{Cint},
-                   Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble},
-                   Ptr{Cdouble},
-                   Cint,
-                   Cint, Cdouble, Cint, Cint,
-                   Ptr{Cdouble}, Cdouble, Cdouble,
-                   Cint, Cint ),
-                 C_NULL, C_NULL,
-                 rows, cols, vals,
-                 Y0,
-                 Int32.( nnz(P) ),
-                 d, λ, max_iter, early_exag,
-                 h, bb, eta,
-                 Int32.( size(P,1) ), np )
-
-  Y = permutedims( unsafe_wrap( Array, ptr_y, (d, size(P,1)) ) )
-
-end
-
-
-function _sgtsnepi_profile_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real; Y0 = C_NULL, np = 0, h = 0.0, bb = Inf, eta = 200.0 )
+function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real;
+                      Y0 = C_NULL, np = 0, h = 1.0, bb = -1.0, eta = 200.0, run_exact = false,
+                      fftw_single = false, alpha = 12, profile = false, drop_leaf = false )
 
   Y0 = (Y0 == C_NULL) ? C_NULL : permutedims( Y0 )
 
   timers = zeros( Float64, 6, max_iter );
-  ptr_timers = Ref{Ptr{Cdouble}}([Ref(timers,i) for i=1:size(timers,1):length(timers)]);
+  ptr_timers = C_NULL;
+  grid_sizes = C_NULL;
 
-  grid_sizes = zeros( Int32, max_iter );
+  if profile
+    ptr_timers = Ref{Ptr{Cdouble}}([Ref(timers,i) for i=1:size(timers,1):length(timers)]);
+    grid_sizes = zeros( Float64, max_iter*3 );
+  end
 
   rows = Int32.( P.rowval .- 1 );
   cols = Int32.( P.colptr .- 1 );
   vals = Float64.( P.nzval );
 
-  if isinf(bb)
+  if run_exact
+    bb = Inf
+  end
+
+  if bb <= 0
     bb = h * ( size(P, 1) ^ (1/d) ) / 2
   end
 
   @debug bb
 
-  if h == 0.0
-    h = C_NULL
-  else
-    h = Float64.( isempty(size(h)) ? [max_iter+1, h] : h )
-    ( length( h ) % 2 ) == 0 || error( "h must have even number of elements" )
-    ( h[end-1] >= max_iter ) || error( "last phase should be equal or greater to max_iter" )
-  end
+  h =  h == 0.0 ? 1.0 : h
+
+  h = Float64.( isempty(size(h)) ? [max_iter+1, h] : h )
+  ( length( h ) % 2 ) == 0 || error( "h must have even number of elements" )
+  ( h[end-1] >= max_iter ) || error( "last phase should be equal or greater to max_iter" )
 
   @debug h
 
   ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
-                 ( Ptr{Ptr{Cdouble}}, Ptr{Cint},
+                 ( Ptr{Ptr{Cdouble}}, Ptr{Cdouble},
                    Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble},
                    Ptr{Cdouble},
                    Cint,
                    Cint, Cdouble, Cint, Cint,
+                   Cdouble, Cint,
                    Ptr{Cdouble}, Cdouble, Cdouble,
-                   Cint, Cint ),
+                   Cint, Cint, Cint, Cint ),
                  ptr_timers, grid_sizes,
                  rows, cols, vals,
                  Y0,
                  Int32.( nnz(P) ),
                  d, λ, max_iter, early_exag,
+                 alpha, Int32.( fftw_single ),
                  h, bb, eta,
-                 Int32.( size(P,1) ), np )
+                 Int32.( size(P,1) ), Int32(drop_leaf), Int32(run_exact), np )
 
   Y = permutedims( unsafe_wrap( Array, ptr_y, (d, size(P,1)) ) )
 
-  Y, timers, grid_sizes
+  if profile
+    return Y, timers, reshape( grid_sizes, (3, max_iter) )
+  else
+    return Y
+  end
 
 end
-
-
