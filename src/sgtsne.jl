@@ -49,8 +49,6 @@ point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
    return a 3-tuple: `(Y, t, g)`, where `Y` is the embedding
    coordinates, `t` are the execution times per iteration and `g` is
    the grid size per iteration.
-- `fftw_single:true`: run single-precision FFTW. Double-precision is
-   x1.5 slower, without any observable accuracy improvement.
 
 ## Notes
 
@@ -114,7 +112,7 @@ function sgtsnepi( A::AbstractMatrix ;
                    k = 3*u,
                    eta = 200.0,
                    alpha = 12,
-                   fftw_single = true,
+                   fftw_single = false,
                    exact = version == EXACT ? true : false,
                    drop_leaf = false,
                    list_grid_size = filter( x -> x == nextprod( (2, 3, 5), x ), 16:512 ),
