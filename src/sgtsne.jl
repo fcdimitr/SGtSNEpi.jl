@@ -20,7 +20,7 @@ point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
      - `SGtSNEpi.NUCONV`: approximated via non-uniform convolution (higher
         resolution than `SGtSNEpi.NUCONV_BL`, slower execution time)
      - `SGtSNEpi.EXACT`: no approximation; quadratic complexity, use only with
-        small datsets
+        small datasets
 
 ## Special options for point-cloud data embedding
 
@@ -38,20 +38,23 @@ point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
 - `eta=200.0`: learning parameter
 - `drop_leaf=false`: remove edges connecting to leaf nodes
 
-## Advanced options (performance/accuracy tradeoff)
+## Advanced options (performance-related)
 
 - `np=0`: number of processors (set to 0 to use all available cores)
 - `h=1.0`: grid side length
+- `list_grid_size = filter( x -> x == nextprod( (2, 3, 5), x ), 16:512 )`:
+   the list of allowed grid size along each dimension. Affects FFT performance;
+   most efficient if the size is a product of small primes.
 - `profile=false`: disable/enable profiling. If enabled the function
    return a 3-tuple: `(Y, t, g)`, where `Y` is the embedding
    coordinates, `t` are the execution times per iteration and `g` is
    the grid size per iteration.
 - `fftw_single:true`: run single-precision FFTW. Double-precision is
-   x1.5 and without any observable accuracy improvement.
+   x1.5 slower, without any observable accuracy improvement.
 
 ## Notes
 
-- Isolated are placed randomly on the top-right corner of the
+- Isolated nodes are placed randomly on the top-right corner of the
   embedding space
 
 - The function tries to automatically detect whether the input matrix
@@ -67,12 +70,10 @@ point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
 ```jldoctest; filter = [r".*error is.*", r".*seconds.*", r".*Attractive.*"]
 julia> using LightGraphs
 
-julia> Y0 = repeat(1:1000,1,2) / 1000.0;
-
 julia> G = circular_ladder_graph( 500 )
 {1000, 1500} undirected simple Int64 graph
 
-julia> Y = sgtsnepi( G; Y0 = Y0, np = 4, early_exag = 100, max_iter = 250 );
+julia> Y = sgtsnepi( G; np = 4, early_exag = 100, max_iter = 250 );
 Number of vertices: 1000
 Embedding dimensions: 2
 Rescaling parameter λ: 10
@@ -80,12 +81,12 @@ Early exag. multiplier α: 12
 Maximum iterations: 250
 Early exag. iterations: 100
 Learning rate: 200
-Box side length h: 0.7
+Box side length h: 1.0
 Drop edges originating from leaf nodes? 0
 Number of processes: 4
 1000 out of 1000 nodes already stochastic
 m = 1000 | n = 1000 | nnz = 3000
-Working with double precision
+Setting-up parallel (single-precision) FFTW: 4
 Iteration 1: error is 96.9204
 Iteration 50: error is 84.9181 (50 iterations in 0.039296 seconds)
 Iteration 100: error is 4.32754 (50 iterations in 0.038005 seconds)
@@ -116,6 +117,7 @@ function sgtsnepi( A::AbstractMatrix ;
                    fftw_single = true,
                    exact = version == EXACT ? true : false,
                    drop_leaf = false,
+                   list_grid_size = filter( x -> x == nextprod( (2, 3, 5), x ), 16:512 ),
                    bound_box = version == NUCONV_BL ? -1.0 : Inf,
                    knn_type = ( size(A,1) < 10_000 ) ? :exact : :flann )
 
@@ -143,7 +145,7 @@ function sgtsnepi( A::AbstractMatrix ;
 
   do_sgtsne_c() = _sgtsnepi_c( P, d, max_iter, early_exag, λ;
                                Y0 = Y0, np = np, h = h, bb = bound_box, eta = eta, run_exact = exact,
-                               fftw_single, alpha, profile, drop_leaf)
+                               fftw_single, alpha, profile, drop_leaf, list_grid_size)
 
   if (profile)
     Y[idx,:],t,g = do_sgtsne_c()
@@ -188,7 +190,9 @@ end
 
 function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real;
                       Y0 = C_NULL, np = 0, h = 1.0, bb = -1.0, eta = 200.0, run_exact = false,
-                      fftw_single = false, alpha = 12, profile = false, drop_leaf = false )
+                      fftw_single = false, alpha = 12, profile = false, drop_leaf = false,
+                      list_grid_size = filter( x -> x == nextprod( (2, 3, 5), x ), 16:512 ) )
+
 
   Y0 = (Y0 == C_NULL) ? C_NULL : permutedims( Y0 )
 
@@ -223,6 +227,8 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
 
   @debug h
 
+  list_grid_size = Int32.( list_grid_size )
+
   ptr_y = ccall( ( :tsnepi_c, libsgtsnepi ), Ptr{Cdouble},
                  ( Ptr{Ptr{Cdouble}}, Ptr{Cdouble},
                    Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble},
@@ -231,6 +237,7 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
                    Cint, Cdouble, Cint, Cint,
                    Cdouble, Cint,
                    Ptr{Cdouble}, Cdouble, Cdouble,
+                   Ptr{Cint}, Cint,
                    Cint, Cint, Cint, Cint ),
                  ptr_timers, grid_sizes,
                  rows, cols, vals,
@@ -239,6 +246,7 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
                  d, λ, max_iter, early_exag,
                  alpha, Int32.( fftw_single ),
                  h, bb, eta,
+                 list_grid_size, length( list_grid_size ),
                  Int32.( size(P,1) ), Int32(drop_leaf), Int32(run_exact), np )
 
   Y = permutedims( unsafe_wrap( Array, ptr_y, (d, size(P,1)) ) )
