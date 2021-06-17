@@ -24,7 +24,7 @@ using Makie
           @test length( Y ) == 3
           @test size( Y[1] ) == (n, d)
           @test size( Y[2] ) == (6, 300)
-          @test length( Y[3] ) == 300
+          @test size( Y[3] ) == (3, 300)
         else
           @test size( Y ) == (n, d)
         end
@@ -53,22 +53,6 @@ using Makie
 
       Y = sgtsnepi( G; d = d, max_iter = 300, early_exag = 150 )
       @test size( Y ) == (n, d)
-
-    end
-
-  end
-
-  @testset "qq" begin
-
-    @testset "d = $d" for d ∈ 1:3
-
-      n = 5000
-      X = repeat(1:n,1,d) / n;
-
-      Fg,zg = SGtSNEpi.qq( X; type = "exact"  )
-      F ,z  = SGtSNEpi.qq( X; type = "interp" )
-
-      @test isapprox(z, zg; rtol = 1e-3)
 
     end
 

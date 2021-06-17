@@ -40,15 +40,17 @@ point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
 
 ## Advanced options (performance-related)
 
-- `np=0`: number of processors (set to 0 to use all available cores)
+- `np=0`: number of threads (set to 0 to use all available cores)
 - `h=1.0`: grid side length
 - `list_grid_size = filter( x -> x == nextprod( (2, 3, 5), x ), 16:512 )`:
    the list of allowed grid size along each dimension. Affects FFT performance;
    most efficient if the size is a product of small primes.
 - `profile=false`: disable/enable profiling. If enabled the function
    return a 3-tuple: `(Y, t, g)`, where `Y` is the embedding
-   coordinates, `t` are the execution times per iteration and `g` is
-   the grid size per iteration.
+   coordinates, `t` are the execution times of each module per iteration
+   (size `6 x max_iter`) and `g` contains the grid size, the
+   embedding domain size (`maximum(Y) - minimum(Y)`), and the scaling factor
+   `s_k` for the band-limited version, per dimension (size `3 x max_iter`).
 
 ## Notes
 
@@ -79,12 +81,13 @@ Early exag. multiplier α: 12
 Maximum iterations: 250
 Early exag. iterations: 100
 Learning rate: 200
-Box side length h: 1.0
+Box side length h: 1
 Drop edges originating from leaf nodes? 0
 Number of processes: 4
 1000 out of 1000 nodes already stochastic
 m = 1000 | n = 1000 | nnz = 3000
-Setting-up parallel (single-precision) FFTW: 4
+WARNING: Randomizing initial points; non-reproducible results
+Setting-up parallel (double-precision) FFTW: 4
 Iteration 1: error is 96.9204
 Iteration 50: error is 84.9181 (50 iterations in 0.039296 seconds)
 Iteration 100: error is 4.32754 (50 iterations in 0.038005 seconds)
