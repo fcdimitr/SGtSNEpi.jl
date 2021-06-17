@@ -46,11 +46,14 @@ using Makie
         A = A + A'
         G = Graph( A )
 
+        Y = sgtsnepi( G; d = d, max_iter = 50, early_exag = 25, version )
+        @test size( Y ) == (n, d)
+
         # check isolated nodes
         A[:,1:5] .= 0
         A[1:5,:] .= 0
 
-        Y = sgtsnepi( G; d = d, max_iter = 50, early_exag = 25, version )
+        Y = sgtsnepi( A; d = d, max_iter = 50, early_exag = 25, version )
         @test size( Y ) == (n, d)
 
       end
