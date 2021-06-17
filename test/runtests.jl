@@ -39,7 +39,7 @@ using Makie
 
     @testset "d = $d" for d ∈ 1:3
 
-      @testset "version = $VER" for ver = [SGtSNEpi.EXACT, SGtSNEpi.NUCONV, SGtSNEpi.NUCONV_BL]
+      @testset "version = $verion" for version = [SGtSNEpi.EXACT, SGtSNEpi.NUCONV, SGtSNEpi.NUCONV_BL]
 
         n = 2000
         A = sprand( n, n, 0.05 )
@@ -50,7 +50,7 @@ using Makie
         A[:,1:5] .= 0
         A[1:5,:] .= 0
 
-        Y = sgtsnepi( G; d = d, max_iter = 50, early_exag = 25, version = ver )
+        Y = sgtsnepi( G; d = d, max_iter = 50, early_exag = 25, version )
         @test size( Y ) == (n, d)
 
       end
