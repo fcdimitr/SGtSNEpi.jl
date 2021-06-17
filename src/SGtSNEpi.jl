@@ -25,7 +25,6 @@ end
 # Basic wrappers for sgtsnepi
 include( "knn.jl" )
 include( "sgtsne.jl" )
-include( "qq.jl" )
 include( "vis.jl" )
 
 # Initialization
