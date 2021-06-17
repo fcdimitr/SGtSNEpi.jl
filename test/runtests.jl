@@ -39,20 +39,21 @@ using Makie
 
     @testset "d = $d" for d ∈ 1:3
 
-      n = 5000
-      A = sprand( n, n, 0.05 )
-      A = A + A'
-      G = Graph( A )
+      @testset "version = $VER" for ver = [SGtSNEpi.EXACT, SGtSNEpi.NUCONV, SGtSNEpi.NUCONV_BL]
 
-      # check isolated nodes
-      A[:,1:5] .= 0
-      A[1:5,:] .= 0
+        n = 2000
+        A = sprand( n, n, 0.05 )
+        A = A + A'
+        G = Graph( A )
 
-      Y = sgtsnepi( A; d = d, max_iter = 300, early_exag = 150 )
-      @test size( Y ) == (n, d)
+        # check isolated nodes
+        A[:,1:5] .= 0
+        A[1:5,:] .= 0
 
-      Y = sgtsnepi( G; d = d, max_iter = 300, early_exag = 150 )
-      @test size( Y ) == (n, d)
+        Y = sgtsnepi( G; d = d, max_iter = 50, early_exag = 25, version = ver )
+        @test size( Y ) == (n, d)
+
+      end
 
     end
 
