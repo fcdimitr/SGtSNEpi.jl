@@ -107,7 +107,8 @@ function sgtsnepi( A::AbstractMatrix ;
                    d = 2, λ = 10,
                    max_iter = 1000, early_exag = 250,
                    Y0 = nothing,
-                   profile = false, np = 0,
+                   profile = false,
+                   np = num_threads(),
                    version::SGTSNEPI_VERSION = NUCONV_BL,
                    type = nothing,
                    h = 1.0,
@@ -120,7 +121,7 @@ function sgtsnepi( A::AbstractMatrix ;
                    drop_leaf = false,
                    list_grid_size = filter( x -> x == nextprod( (2, 3, 5), x ), 16:512 ),
                    bound_box = version == NUCONV_BL ? -1.0 : Inf,
-                   par_scheme_grid_thres = (1e6)^(1/d),
+                   par_scheme_grid_thres = get_parallelism_strategy_threshold(d,np),
                    knn_type = ( size(A,1) < 10_000 ) ? :exact : :flann )
 
   A = ( isequal( size(A)... ) && type != :coord ) ? A :

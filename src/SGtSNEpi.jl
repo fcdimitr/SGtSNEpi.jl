@@ -26,6 +26,7 @@ end
 include( "knn.jl" )
 include( "sgtsne.jl" )
 include( "vis.jl" )
+include( "arch_spec.jl" )
 
 # Initialization
 function __init__()
