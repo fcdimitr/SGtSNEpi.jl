@@ -117,6 +117,7 @@ function sgtsnepi( A::AbstractMatrix ;
                    drop_leaf = false,
                    list_grid_size = filter( x -> x == nextprod( (2, 3, 5), x ), 16:512 ),
                    bound_box = version == NUCONV_BL ? -1.0 : Inf,
+                   par_scheme_grid_thres = (1e6)^(1/d),
                    knn_type = ( size(A,1) < 10_000 ) ? :exact : :flann )
 
   A = ( isequal( size(A)... ) && type != :coord ) ? A :
@@ -143,7 +144,7 @@ function sgtsnepi( A::AbstractMatrix ;
 
   do_sgtsne_c() = _sgtsnepi_c( P, d, max_iter, early_exag, λ;
                                Y0 = Y0, np = np, h = h, bb = bound_box, eta = eta, run_exact = exact,
-                               fftw_single, alpha, profile, drop_leaf, list_grid_size)
+                               fftw_single, alpha, profile, drop_leaf, list_grid_size, par_scheme_grid_thres)
 
   if (profile)
     Y[idx,:],t,g = do_sgtsne_c()
@@ -189,9 +190,10 @@ end
 function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int, λ::Real;
                       Y0 = C_NULL, np = 0, h = 1.0, bb = -1.0, eta = 200.0, run_exact = false,
                       fftw_single = false, alpha = 12, profile = false, drop_leaf = false,
-                      list_grid_size = filter( x -> x == nextprod( (2, 3, 5), x ), 16:512 ) )
+                      list_grid_size = filter( x -> x == nextprod( (2, 3, 5), x ), 16:512 ),
+                      par_scheme_grid_thres = 1e6^(1/d) )
 
-
+  par_scheme_grid_thres = Int32.( round( par_scheme_grid_thres ) )
   Y0 = (Y0 == C_NULL) ? C_NULL : permutedims( Y0 )
 
   timers = zeros( Float64, 6, max_iter );
@@ -236,7 +238,7 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
                    Cdouble, Cint,
                    Ptr{Cdouble}, Cdouble, Cdouble,
                    Ptr{Cint}, Cint,
-                   Cint, Cint, Cint, Cint ),
+                   Cint, Cint, Cint, Cint, Cint ),
                  ptr_timers, grid_sizes,
                  rows, cols, vals,
                  Y0,
@@ -245,7 +247,8 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
                  alpha, Int32.( fftw_single ),
                  h, bb, eta,
                  list_grid_size, length( list_grid_size ),
-                 Int32.( size(P,1) ), Int32(drop_leaf), Int32(run_exact), np )
+                 Int32.( size(P,1) ), Int32(drop_leaf), Int32(run_exact),
+                 par_scheme_grid_thres, np )
 
   Y = permutedims( unsafe_wrap( Array, ptr_y, (d, size(P,1)) ) )
 
