@@ -39,7 +39,7 @@ using Makie
 
     @testset "d = $d" for d ∈ 1:3
 
-      @testset "version = $verion" for version = [SGtSNEpi.EXACT, SGtSNEpi.NUCONV, SGtSNEpi.NUCONV_BL]
+      @testset "version = $version" for version = [SGtSNEpi.EXACT, SGtSNEpi.NUCONV, SGtSNEpi.NUCONV_BL]
 
         n = 2000
         A = sprand( n, n, 0.05 )
