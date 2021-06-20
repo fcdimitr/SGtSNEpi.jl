@@ -81,10 +81,14 @@ Y = sgtsnepi(F; Y0 = Y0);
 
 ## Visualization
 
-To reproduce the next steps, you need to install the following packages
+To reproduce the next steps, we need to install the following packages
+
 ```
-Pkg.add(["CairoMakie", "Colors"])
+Pkg.add(["CairoMakie", "Colors", "Makie"])
 ```
+
+If `Makie` was not installed when `SGtSNEpi` was loaded, you need to
+restart `Julia` and repeat the previous steps.
 
 ### Visualization
 

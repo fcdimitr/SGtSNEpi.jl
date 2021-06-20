@@ -1,3 +1,5 @@
+using .Makie
+
 @doc raw"""
     show_embedding( Y [, L] )
 
@@ -6,6 +8,10 @@ Visualization of 2D embedding coordinates $Y$ using Makie. If the $n
 colored accroding to the labels.
 
 ## Notes
+
+This function is provied only if the user already has Makie installed
+in their Julia environment. Otherwise, the function will not be
+defined.
 
 You need to install and select a backend for Makie. See
 [instructions by Makie](http://makie.juliaplots.org/stable/backends_and_output.html)

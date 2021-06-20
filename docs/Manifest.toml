@@ -1042,7 +1042,7 @@ uuid = "6038ab10-8711-5258-84ad-4b1120ba62dc"
 version = "1.0.2"
 
 [[SGtSNEpi]]
-deps = ["Colors", "Distances", "FLANN", "Hwloc", "Libdl", "LightGraphs", "LinearAlgebra", "Makie", "NearestNeighbors", "SparseArrays", "sgtsnepi_jll"]
+deps = ["Colors", "Distances", "FLANN", "Hwloc", "Libdl", "LightGraphs", "LinearAlgebra", "NearestNeighbors", "Requires", "SparseArrays", "sgtsnepi_jll"]
 path = ".."
 uuid = "e6c19c8d-e382-4a50-b2c6-174ddd647730"
 version = "0.2.0"
