@@ -7,11 +7,13 @@ Visualization of 2D embedding coordinates $Y$ using Makie. If the $n
 \times 1$ vector $L$ of vertex memberships is provided, points are
 colored accroding to the labels.
 
-## Notes
+## Requirements
 
-This function is provied only if the user already has Makie installed
+This function is provided only if the user already has Makie installed
 in their Julia environment. Otherwise, the function will not be
 defined.
+
+## Notes
 
 You need to install and select a backend for Makie. See
 [instructions by Makie](http://makie.juliaplots.org/stable/backends_and_output.html)
