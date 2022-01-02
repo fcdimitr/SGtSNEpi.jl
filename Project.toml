@@ -19,6 +19,7 @@ sgtsnepi_jll = "c2c51ba6-9464-585c-93d5-ba434ab08fad"
 [compat]
 Colors = "0.12"
 Distances = "0.10"
+Graphs = "1"
 FLANN = "1"
 Hwloc = "2"
 NearestNeighbors = "0.4"
