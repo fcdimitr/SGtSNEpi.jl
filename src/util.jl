@@ -258,7 +258,7 @@ function perplexity_equalization(D::SparseMatrixCSC, u::Number;
   @inbounds for j = 1:n              # loop over all columns of D
 
     fval = iTval[j]
-    lb, ub = -1000, Inf              # lower/upper bounds for search
+    lb, ub = -Inf, Inf              # lower/upper bounds for search
 
     iter = 0
 
