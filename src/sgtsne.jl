@@ -22,12 +22,6 @@ point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
      - `SGtSNEpi.EXACT`: no approximation; quadratic complexity, use only with
         small datasets
 
-## Special options for point-cloud data embedding
-
-- `u=10`: perplexity
-- `k=3*u`: number of nearest neighbors (for kNN formation)
-- `knn_type=( size(A,1) < 10_000 ) ? :exact : :flann`: Exact or approximate kNN
-
 ## More options (for experts)
 
 - `max_iter=1000`: number of iterations
@@ -99,9 +93,29 @@ Iteration 249: error is 1.65057 (50 iterations in 0.213149 seconds)
  Attractive forces: 0.006199 sec [1.24082%] |  Repulsive forces: 0.49339 sec [98.7592%]
 ```
 """
-sgtsnepi( G::AbstractGraph ; kwargs... ) = sgtsnepi( Float64.( adjacency_matrix(G) ) ; kwargs..., type = :graph )
+sgtsnepi( G::AbstractGraph ; kwargs... ) = sgtsnepi( Float64.( adjacency_matrix(G) ) ; kwargs... )
 
 @enum SGTSNEPI_VERSION NUCONV_BL EXACT NUCONV
+
+@doc raw"""
+    pointcloud2graph( X::AbstractMatrix, u = 10, k = 3*u; knn_type )
+
+Convert a point-cloud data set $X$ (coordinates) of size $N \times D$ to a
+similarity graph, using perplexity equalization, same as conventional t-SNE.
+
+## Special options for point-cloud data embedding
+
+- `u=10`: perplexity
+- `k=3*u`: number of nearest neighbors (for kNN formation)
+- `knn_type=( size(A,1) < 10_000 ) ? :exact : :flann`: Exact or approximate kNN
+
+"""
+function pointcloud2graph( X::AbstractMatrix, u = 10, k = 3*u;
+                           knn_type = ( size(X,1) < 10_000 ) ? :exact : :flann )
+
+   _form_knn_graph( X, u, k; knn_type )
+
+end
 
 function sgtsnepi( A::AbstractMatrix ;
                    d = 2, λ = 10,
@@ -110,7 +124,6 @@ function sgtsnepi( A::AbstractMatrix ;
                    profile = false,
                    np = num_threads(),
                    version::SGTSNEPI_VERSION = NUCONV_BL,
-                   type = nothing,
                    h = 1.0,
                    u = 10,
                    k = 3*u,
@@ -121,17 +134,17 @@ function sgtsnepi( A::AbstractMatrix ;
                    drop_leaf = false,
                    list_grid_size = filter( x -> x == nextprod( (2, 3, 5), x ), 16:512 ),
                    bound_box = version == NUCONV_BL ? -1.0 : Inf,
-                   par_scheme_grid_thres = get_parallelism_strategy_threshold(d,np),
-                   knn_type = ( size(A,1) < 10_000 ) ? :exact : :flann )
+                   par_scheme_grid_thres = get_parallelism_strategy_threshold(d,np) )
 
-  A = ( isequal( size(A)... ) && type != :coord ) ? A :
-    _form_knn_graph( A, u, k ; knn_type = knn_type )
+  !isequal( size(A)... ) && error( "Input must be an adjacency matrix (square matrix)" )
 
   A = issparse( A ) ? A : sparse( A )
 
   nnz( diag(A) ) > 0 && @warn "$( nnz( diag(A) ) ) elements have self-loops; setting distances to 0"
   A = A - spdiagm( 0 => diag( A ) )
   dropzeros!( A )
+
+  minimum( nonzeros(A) ) < 0.0 && error( "Negative edge weights are not supported" )
 
   @assert nnz( diag(A) ) == 0
 

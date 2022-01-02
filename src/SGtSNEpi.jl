@@ -2,13 +2,13 @@ module SGtSNEpi
 
 # Dependent package
 using sgtsnepi_jll
-using LinearAlgebra, LightGraphs, SparseArrays, Libdl
+using LinearAlgebra, Graphs, SparseArrays, Libdl
 using NearestNeighbors, FLANN
 using Colors, LinearAlgebra
 using Requires
 
 # export
-export sgtsnepi, show_embedding
+export sgtsnepi, pointcloud2graph, show_embedding
 
 
 # C struct to hold sparse matrix
@@ -24,6 +24,7 @@ end
 
 
 # Basic wrappers for sgtsnepi
+include( "util.jl" )
 include( "knn.jl" )
 include( "sgtsne.jl" )
 include( "arch_spec.jl" )

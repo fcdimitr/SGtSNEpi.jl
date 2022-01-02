@@ -1,12 +1,12 @@
 using SGtSNEpi
 using Test
-using LightGraphs
+using Graphs
 using SparseArrays
 using Makie
 
 @testset "SGtSNEpi.jl" begin
 
-  @testset "$type knn" for type ∈ [:exact, :flann]
+  @testset "$knn_type knn" for knn_type ∈ [:exact, :flann]
 
     @testset "profile $profile" for profile ∈ [true, false]
 
@@ -16,7 +16,9 @@ using Makie
 
         X = rand( n, 50 )
 
-        Y = sgtsnepi( X; d = d, knn_type = type,
+        A = pointcloud2graph( X; knn_type )
+
+        Y = sgtsnepi( A; d = d,
                       max_iter = 300, early_exag = 150,
                       profile = profile )
 
@@ -44,9 +46,8 @@ using Makie
         n = 2000
         A = sprand( n, n, 0.05 )
         A = A + A'
-        G = Graph( A )
 
-        Y = sgtsnepi( G; d = d, max_iter = 50, early_exag = 25, version )
+        Y = sgtsnepi( A; d = d, max_iter = 50, early_exag = 25, version )
         @test size( Y ) == (n, d)
 
         # check isolated nodes
@@ -86,10 +87,7 @@ using Makie
 
     X = rand( n, 50 )
 
-    @test_throws Exception sgtsnepi( X; d = 2, knn_type = :other,
-                                     max_iter = 300, early_exag = 150 )
-
-    @test_throws Exception qq( X; type = :other )
+    @test_throws Exception pointcloud2graph( X; knn_type = :other )
 
   end
 

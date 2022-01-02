@@ -72,11 +72,13 @@ nothing; # hide
 We use SG-t-SNE-Π to embed the data in a 2D space
 
 ```@setup 1
-Y = sgtsnepi(F; Y0 = Y0);
+A = pointcloud2graph( F )
+Y = sgtsnepi(A; Y0 = Y0);
 ```
 
 ```julia
-Y = sgtsnepi(F; Y0 = Y0);
+A = pointcloud2graph( F )
+Y = sgtsnepi(A; Y0 = Y0);
 ```
 
 ## Visualization
