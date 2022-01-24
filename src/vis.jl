@@ -108,3 +108,45 @@ function show_embedding(
   f
 
 end
+
+
+@doc raw"""
+    neighbor_recall(X, Y[; k = 10])
+
+Histogram of the stochastic k-neighbors recall values at all vertices.
+
+```math
+{\rm recall}(v) = \sum_j \mathbf{P}_{j|i} b_{ij},
+```
+
+where ``\mathbf{B}_k = [b_{ij}]`` is the adjacency matrix of the kNN graph of
+the embedded points ``\mathbf{Y}`` in Euclidean distance,
+and ``\mathbf{P}_{j|i}`` is the neighborhood probability matrix in the
+high-dimensional space ``\mathbf{X}``.
+
+See Fig.4 in https://arxiv.org/pdf/1906.05582.pdf for more details.
+
+"""
+function neighbor_recall(X, Y; k = 10, resolution = (800,600))
+
+  X = permutedims(X)
+  Y = permutedims(Y)
+
+  idx_high, _ = NearestNeighbors.knn(BruteTree(X), X, k, true)
+  idx_low , _ = NearestNeighbors.knn(BruteTree(Y), Y, k, true)
+
+  sd = Vector{Float64}(undef, length(idx_low))
+  for i = 1 : length(sd)
+    sd[i] = length( intersect( idx_low[i], idx_high[i] ) ) / k
+  end
+
+  f = Figure(;resolution)
+
+  ax = Axis(f[1, 1], limits = (0, 1, 0, nothing),
+            xlabel = "neighborhood recall",
+            ylabel = "relative frequency")
+  hist!( ax, sd, normalization = :pdf )
+
+  f
+
+end
