@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
         with:
-          version: '1.6'
+          version: '1.7'
           # Occasionally, there are rather large delays (> a few hours)
           # between the time a package is registered in General and
           # propagated to pkg.julialang.org.  We can avoid this by manually
