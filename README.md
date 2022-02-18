@@ -10,7 +10,7 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://fcdimitr.github.io/SGtSNEpi.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://fcdimitr.github.io/SGtSNEpi.jl/dev)
 
-We provide a `Julia` interface, i.e., a wrapper to SG-t-SNE-Π, which
+We provide a `Julia` interface, i.e., a wrapper to [SG-t-SNE-Π](http://t-sne-pi.cs.duke.edu), which
 is a high-performance software for swift embedding of a large, sparse
 graph into a d-dimensional space (d = 1,2,3) on a shared-memory
 computer.
