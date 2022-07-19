@@ -33,7 +33,7 @@ using Makie
           @test size( Y ) == (n, d)
         end
         
-        @test typeof( neighbor_recall( X, Y; k = 10, resolution = (800,600) ) ) == Figure
+        @test typeof( SGtSNEpi.neighbor_recall( X, Y; k = 10, resolution = (800,600) ) ) == Figure
 
       end
 
