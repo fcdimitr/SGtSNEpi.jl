@@ -6,7 +6,42 @@ using Makie
 
 @testset "SGtSNEpi.jl" begin
 
-  @testset "$knn_type knn" for knn_type ∈ [:exact, :flann]
+  @testset "$knn_type knn" for knn_type ∈ [:exact]
+
+    @testset "profile $profile" for profile ∈ [true, false]
+
+      @testset "d = $d" for d ∈ 1:3
+
+        n = 5000
+
+        X = rand( n, 50 )
+
+        A = pointcloud2graph( X; knn_type )
+
+        @test_throws Exception pointcloud2graph( X; knn_type = :flann )
+
+        Y = sgtsnepi( A; d = d,
+                      max_iter = 300, early_exag = 150,
+                      profile = profile )
+
+        if profile == true
+          @test length( Y ) == 3
+          @test size( Y[1] ) == (n, d)
+          @test size( Y[2] ) == (6, 300)
+          @test size( Y[3] ) == (3, 300)
+        else
+          @test size( Y ) == (n, d)
+        end
+
+      end
+
+    end
+
+  end
+
+  using FLANN
+
+  @testset "$knn_type knn" for knn_type ∈ [:flann]
 
     @testset "profile $profile" for profile ∈ [true, false]
 
