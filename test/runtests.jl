@@ -31,9 +31,8 @@ using Makie
           @test size( Y[3] ) == (3, 300)
         else
           @test size( Y ) == (n, d)
+          @test typeof( SGtSNEpi.neighbor_recall( X, Y; k = 10, resolution = (800,600) ) ) == Figure
         end
-        
-        @test typeof( SGtSNEpi.neighbor_recall( X, Y; k = 10, resolution = (800,600) ) ) == Figure
 
       end
 
