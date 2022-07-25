@@ -107,11 +107,11 @@ similarity graph, using perplexity equalization, same as conventional t-SNE.
 
 - `u=10`: perplexity
 - `k=3*u`: number of nearest neighbors (for kNN formation)
-- `knn_type=( size(A,1) < 10_000 ) ? :exact : :flann`: Exact or approximate kNN
+- `knn_type=( size(A,1) < 10_000 ) || !USING_FLANN ? :exact : :flann`: Exact or approximate kNN
 
 """
 function pointcloud2graph( X::AbstractMatrix, u = 10, k = 3*u;
-                           knn_type = ( size(X,1) < 10_000 ) ? :exact : :flann )
+                           knn_type = ( size(X,1) < 10_000 ) || !USING_FLANN ? :exact : :flann )
 
    _form_knn_graph( X, u, k; knn_type )
 
