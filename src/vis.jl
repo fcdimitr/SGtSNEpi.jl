@@ -86,7 +86,7 @@ function show_embedding(
       end
     end
     idx_cross = map( (x,y) -> x != y, L[i], L[j] )
-    _plot_lines!( ax, Y, i, j, idx_cross, colorant"#aabbbbbb", lwd_out )
+    _plot_lines!( ax, Y, i, j, idx_cross, clr_out, lwd_out )
   end
 
   scatter!(ax, Y[:,1], Y[:,2], color = L, colormap = cmap,
