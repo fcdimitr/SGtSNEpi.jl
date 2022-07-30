@@ -1,5 +1,5 @@
 ```@eval
-using CairoMakie
+using CairoMakie, FLANN
 CairoMakie.activate!()
 ```
 

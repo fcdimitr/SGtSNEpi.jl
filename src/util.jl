@@ -299,7 +299,7 @@ function perplexity_equalization(D::SparseMatrixCSC, u::Number;
   if nc_idx == 0
     @info "All $n elements converged numerically, avg(#iter) = $avgIter"
   else
-    @warn "There are $nc_idx non-convergent elements out of $N"
+    @warn "There are $nc_idx non-convergent elements out of $n"
   end
 
   n_neg = sum( σ² .< 0 )

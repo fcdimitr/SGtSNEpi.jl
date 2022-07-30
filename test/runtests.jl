@@ -6,7 +6,7 @@ using Makie
 
 @testset "SGtSNEpi.jl" begin
 
-  @testset "$knn_type knn" for knn_type ∈ [:exact, :flann]
+  @testset "$knn_type knn" for knn_type ∈ [:exact]
 
     @testset "profile $profile" for profile ∈ [true, false]
 
@@ -17,6 +17,46 @@ using Makie
         X = rand( n, 50 )
 
         A = pointcloud2graph( X; knn_type )
+
+        @test_throws Exception pointcloud2graph( X; knn_type = :flann )
+
+        Y = sgtsnepi( A; d = d,
+                      max_iter = 300, early_exag = 150,
+                      profile = profile )
+
+        if profile == true
+          @test length( Y ) == 3
+          @test size( Y[1] ) == (n, d)
+          @test size( Y[2] ) == (6, 300)
+          @test size( Y[3] ) == (3, 300)
+        else
+          @test size( Y ) == (n, d)
+          @test typeof( SGtSNEpi.neighbor_recall( X, Y; k = 10, resolution = (800,600) ) ) == Figure
+        end
+
+      end
+
+    end
+
+  end
+
+  using FLANN
+
+  @testset "$knn_type knn" for knn_type ∈ [:flann]
+
+    @testset "profile $profile" for profile ∈ [true, false]
+
+      @testset "d = $d" for d ∈ 1:3
+
+        n = 5000
+
+        X = rand( n, 50 )
+
+        A = pointcloud2graph( X; knn_type )
+        
+        SGtSNEpi.sgtsne_lambda_equalization( A, 1  );
+        SGtSNEpi.sgtsne_lambda_equalization( A, 10 );
+        SGtSNEpi.sgtsne_lambda_equalization( A, 1000000 );
 
         Y = sgtsnepi( A; d = d,
                       max_iter = 300, early_exag = 150,
@@ -78,7 +118,7 @@ using Makie
     @test typeof( show_embedding( Y ) ) == Figure
     @test typeof( show_embedding( Y, L ) ) == Figure
     @test typeof( show_embedding( Y, L ; A = A ) ) == Figure
-
+    
   end
 
   @testset "make sure errors are thrown" begin
@@ -91,5 +131,10 @@ using Makie
 
   end
 
+  @testset "graph" begin
+    G = watts_strogatz( 1500, 5, 0.05 )
+    Y = sgtsnepi( G; d = 2 );
+    @test size( Y ) == (1500, 2)
+  end
 
 end
