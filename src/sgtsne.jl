@@ -137,6 +137,7 @@ function sgtsnepi( A::AbstractMatrix ;
                    par_scheme_grid_thres = get_parallelism_strategy_threshold(d,np) )
 
   !isequal( size(A)... ) && error( "Input must be an adjacency matrix (square matrix)" )
+  (d > 3 || d < 1) && error( "Supported embedding dimensions are 1, 2, and 3." )
 
   A = issparse( A ) ? A : sparse( A )
 
