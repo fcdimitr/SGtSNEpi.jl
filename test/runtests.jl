@@ -58,6 +58,9 @@ using Makie
         SGtSNEpi.sgtsne_lambda_equalization( A, 10 );
         SGtSNEpi.sgtsne_lambda_equalization( A, 1000000 );
 
+        W = pointcloud2graph( X, 5, 10; knn_type, rescale_type = :lambda )
+        W = pointcloud2graph( X, 10000, 4; knn_type, rescale_type = :lambda )
+
         Y = sgtsnepi( A; d = d,
                       max_iter = 300, early_exag = 150,
                       profile = profile )
@@ -128,6 +131,7 @@ using Makie
     X = rand( n, 50 )
 
     @test_throws Exception pointcloud2graph( X; knn_type = :other )
+    @test_throws Exception pointcloud2graph( X; rescale_type = :other )
 
   end
 

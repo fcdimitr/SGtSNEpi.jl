@@ -130,7 +130,7 @@ function sgtsne_lambda_equalization(D::SparseMatrixCSC,λ::Number;
   if nc_idx == 0
     @info "All $n elements converged numerically, avg(#iter) = $avgIter"
   else
-    @warn "There are $nc_idx non-convergent elements out of $N"
+    @warn "There are $nc_idx non-convergent elements out of $n"
   end
 
   n_neg = sum( σ² .< 0 )
@@ -144,10 +144,10 @@ end
 
 
 @doc raw"""
-    sgtsne_lambda_equalization(D,λ; maxIter = 50)
+    perplexity_equalization(D,u; maxIter = 50, tolBinary = 1e-5)
 
 Binary search for the scales of column-wise conditional probabilities
-from exp(-D) to exp(-D/σ²)/z equalized by λ.
+from exp(-D) to exp(-D/σ²)/z via perplexity equalization.
 
 # Inputs
 

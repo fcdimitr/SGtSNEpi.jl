@@ -98,22 +98,25 @@ sgtsnepi( G::AbstractGraph ; kwargs... ) = sgtsnepi( Float64.( adjacency_matrix(
 @enum SGTSNEPI_VERSION NUCONV_BL EXACT NUCONV
 
 @doc raw"""
-    pointcloud2graph( X::AbstractMatrix, u = 10, k = 3*u; knn_type )
+    pointcloud2graph( X::AbstractMatrix, u = 10, k = 3*u; knn_type, rescale_type = :perplexity )
 
 Convert a point-cloud data set $X$ (coordinates) of size $N \times D$ to a
 similarity graph, using perplexity equalization, same as conventional t-SNE.
 
 ## Special options for point-cloud data embedding
 
-- `u=10`: perplexity
+- `u=10`: either perplexity or value of λ (if `rescale_type`` is set to :lambda)
 - `k=3*u`: number of nearest neighbors (for kNN formation)
 - `knn_type=( size(A,1) < 10_000 ) || !USING_FLANN ? :exact : :flann`: Exact or approximate kNN
+- `rescale_type=:perplexity: Which rescaling operation to use to transform distances into edge weights. 
+   Either `:perplexity` or `:lambda`. Default is `:perlexity`.
 
 """
 function pointcloud2graph( X::AbstractMatrix, u = 10, k = 3*u;
-                           knn_type = ( size(X,1) < 10_000 ) || !USING_FLANN ? :exact : :flann )
+                           knn_type = ( size(X,1) < 10_000 ) || !USING_FLANN ? :exact : :flann,
+                           rescale_type = :perplexity )
 
-   _form_knn_graph( X, u, k; knn_type )
+   _form_knn_graph( X, u, k; knn_type, rescale_type )
 
 end
 
