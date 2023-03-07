@@ -62,7 +62,7 @@ point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
 
 # Examples
 ```jldoctest; filter = [r".*error is.*", r".*seconds.*", r".*Attractive.*"]
-julia> using LightGraphs
+julia> using Graphs
 
 julia> G = circular_ladder_graph( 500 )
 {1000, 1500} undirected simple Int64 graph
@@ -93,7 +93,7 @@ Iteration 249: error is 1.65057 (50 iterations in 0.213149 seconds)
  Attractive forces: 0.006199 sec [1.24082%] |  Repulsive forces: 0.49339 sec [98.7592%]
 ```
 """
-sgtsnepi( G::AbstractGraph ; kwargs... ) = sgtsnepi( Float64.( adjacency_matrix(G) ) ; kwargs... )
+sgtsnepi( G::T ; kwargs... ) where {T<:AbstractGraph} = sgtsnepi( Float64.( adjacency_matrix(G) ) ; kwargs... )
 
 @enum SGTSNEPI_VERSION NUCONV_BL EXACT NUCONV
 

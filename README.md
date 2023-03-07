@@ -28,3 +28,18 @@ To install `SG-t-SNE-Π` through Julia, issue
 See [the full
 documentation](https://fcdimitr.github.io/SGtSNEpi.jl/stable) for more
 details.
+
+## Citation
+
+If you use this software, please cite the following paper:
+
+```bibtex
+@inproceedings{pitsianis2019sgtsnepi,
+    author = {Pitsianis, Nikos and Iliopoulos, Alexandros-Stavros and Floros, Dimitris and Sun, Xiaobai},
+    doi = {10.1109/HPEC.2019.8916505},
+    booktitle = {IEEE High Performance Extreme Computing Conference},
+    month = {11},
+    title = {{Spaceland Embedding of Sparse Stochastic Graphs}},
+    year = {2019}
+}
+```
