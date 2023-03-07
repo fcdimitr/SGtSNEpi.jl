@@ -31,7 +31,7 @@ function sgtsne_lambda_equalization(D::SparseMatrixCSC,λ::Number;
   function colsum(D, j, σ = 1.0)
     Dmin  = floatmin(Float64)        # minimum possible value (double prec.)
     vals  = nonzeros(D)              # vector of values
-    sum_j = 0;                       # initialize accumulator
+    sum_j = 0.0;                       # initialize accumulator
 
     @inbounds for i in nzrange(D, j) # loop over nonzero elements in CSC column j
 
@@ -89,7 +89,7 @@ function sgtsne_lambda_equalization(D::SparseMatrixCSC,λ::Number;
   @inbounds for j = 1:n              # loop over all columns of D
 
     fval = iTval[j]
-    lb, ub = -1000, Inf              # lower/upper bounds for search
+    lb, ub = -1000.0, Inf              # lower/upper bounds for search
 
     iter = 0
 

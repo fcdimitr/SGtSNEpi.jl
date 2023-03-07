@@ -3,6 +3,7 @@ using Test
 using Graphs
 using SparseArrays
 using Makie
+using Colors
 
 @testset "SGtSNEpi.jl" begin
 
@@ -41,6 +42,15 @@ using Makie
   end
 
   using FLANN
+
+  @testset "simple, small examples" begin
+    
+    A = sparse( [1.0 0.0;0.0 1.0] )
+
+    SGtSNEpi.sgtsne_lambda_equalization(sparse(A),3.0)
+    SGtSNEpi.perplexity_equalization(sparse(A),3.0)
+    
+  end
 
   @testset "$knn_type knn" for knn_type ∈ [:flann]
 
@@ -117,6 +127,13 @@ using Makie
     Y = sgtsnepi( A; max_iter = 300, early_exag = 150 )
 
     f = show_embedding( Y )
+
+    cmap = distinguishable_colors(
+      maximum(L) - minimum(L) + 1,
+      [RGB(1,1,1), RGB(0,0,0)], dropseed=true)
+    clr_in = RGBA(cmap[1], 0.2)
+
+    show_embedding( Y; clr_in )
 
     @test typeof( show_embedding( Y ) ) == Figure
     @test typeof( show_embedding( Y, L ) ) == Figure

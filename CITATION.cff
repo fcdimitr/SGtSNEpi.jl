@@ -26,7 +26,7 @@ preferred-citation:
   - family-names: "Sun"
     given-names: "Xiaobai"
   doi: "10.1109/HPEC.2019.8916505"
-  journal: "IEEE High Performance Extreme Computing Conference"
+  collection-title: "IEEE High Performance Extreme Computing Conference"
   month: 11
   title: "Spaceland Embedding of Sparse Stochastic Graphs"
   year: 2019
