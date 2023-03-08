@@ -49,6 +49,7 @@ using Colors
 
     SGtSNEpi.sgtsne_lambda_equalization(sparse(A),3.0)
     SGtSNEpi.perplexity_equalization(sparse(A),3.0)
+    SGtSNEpi.sgtsne_lambda_equalization(sparse(A),1e18)
     
   end
 
