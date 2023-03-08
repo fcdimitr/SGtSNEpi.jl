@@ -31,7 +31,7 @@ function sgtsne_lambda_equalization(D::SparseMatrixCSC,λ::Number;
   function colsum(D, j, σ = 1.0)
     Dmin  = floatmin(Float64)        # minimum possible value (double prec.)
     vals  = nonzeros(D)              # vector of values
-    sum_j = 0;                       # initialize accumulator
+    sum_j = 0.0;                       # initialize accumulator
 
     @inbounds for i in nzrange(D, j) # loop over nonzero elements in CSC column j
 
@@ -89,7 +89,7 @@ function sgtsne_lambda_equalization(D::SparseMatrixCSC,λ::Number;
   @inbounds for j = 1:n              # loop over all columns of D
 
     fval = iTval[j]
-    lb, ub = -1000, Inf              # lower/upper bounds for search
+    lb, ub = -1000.0, Inf              # lower/upper bounds for search
 
     iter = 0
 
@@ -130,7 +130,7 @@ function sgtsne_lambda_equalization(D::SparseMatrixCSC,λ::Number;
   if nc_idx == 0
     @info "All $n elements converged numerically, avg(#iter) = $avgIter"
   else
-    @warn "There are $nc_idx non-convergent elements out of $N"
+    @warn "There are $nc_idx non-convergent elements out of $n"
   end
 
   n_neg = sum( σ² .< 0 )
@@ -144,10 +144,10 @@ end
 
 
 @doc raw"""
-    sgtsne_lambda_equalization(D,λ; maxIter = 50)
+    perplexity_equalization(D,u; maxIter = 50, tolBinary = 1e-5)
 
 Binary search for the scales of column-wise conditional probabilities
-from exp(-D) to exp(-D/σ²)/z equalized by λ.
+from exp(-D) to exp(-D/σ²)/z via perplexity equalization.
 
 # Inputs
 

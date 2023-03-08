@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Pitsianis"
+  given-names: "Nikos"
+- family-names: "Iliopoulos"
+  given-names: "Alexandros-Stavros"
+- family-names: "Floros"
+  given-names: "Dimitris"
+- family-names: "Sun"
+  given-names: "Xiaobai"
+title: "SG-t-SNE-Π: Swift Graph Embedding"
+version: 0.3.4
+doi: https://doi.org/10.21105/joss.01577
+date-released: 2019-07-31
+url: "https://github.com/fcdimitr/sgtsnepi"
+preferred-citation:
+  type: conference-paper
+  authors:
+  - family-names: "Pitsianis"
+    given-names: "Nikos"
+  - family-names: "Iliopoulos"
+    given-names: "Alexandros-Stavros"
+  - family-names: "Floros"
+    given-names: "Dimitris"
+  - family-names: "Sun"
+    given-names: "Xiaobai"
+  doi: "10.1109/HPEC.2019.8916505"
+  collection-title: "IEEE High Performance Extreme Computing Conference"
+  month: 11
+  title: "Spaceland Embedding of Sparse Stochastic Graphs"
+  year: 2019

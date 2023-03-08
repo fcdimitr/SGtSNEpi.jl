@@ -17,6 +17,7 @@ makedocs( bib,
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://fcdimitr.github.io/SGtSNEpi.jl",
         assets=String[],
+        edit_link="master",
         sidebar_sitename=false,
     ),
     doctest = true,
@@ -32,6 +33,8 @@ makedocs( bib,
 
 deploydocs(;
     repo="github.com/fcdimitr/SGtSNEpi.jl",
+    devbranch="master",
+    push_preview=true
 )
 
 

@@ -1,4 +1,4 @@
-function _form_knn_graph( X, u, k = 3*u; knn_type = :exact )
+function _form_knn_graph( X, u, k = 3*u; knn_type = :exact, rescale_type = :perplexity )
 
   @info "Forming kNN graph [k = $k | type : $knn_type]"
 
@@ -24,7 +24,13 @@ function _form_knn_graph( X, u, k = 3*u; knn_type = :exact )
 
   D² = sparse( vec(idxs), vec( repeat((1:n)', k+1, 1) ), vec(dists) )
   D² = D² - spdiagm( diag(D²) )
-  P  = perplexity_equalization( D², u )
+  P  = if rescale_type == :perplexity
+    perplexity_equalization( D², u )
+  elseif rescale_type == :lambda
+    sgtsne_lambda_equalization( D², u )
+  else
+    error("Unknown rescale type $rescale_type")
+  end
 
   # P = _perplexity_equalize_c( idxs, dists, u )
 

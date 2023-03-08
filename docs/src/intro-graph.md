@@ -127,7 +127,7 @@ Y = sgtsnepi(A; d = 3, Y0 = Y0, max_iter = 500);
 sc = scatter( Y[:,1], Y[:,2], Y[:,3], color = L, colormap = cmap, markersize = 2 )
 
 record(sc, "sgtsnepi-animation.gif", range(0, 1, length = 24*8); framerate = 24) do ang
-  rotate_cam!( sc.figure.scene.children[1], 2*π/(24*8), 0, 0 )
+  rotate_cam!( sc.axis.scene, 0, 2*π/(24*8), 0 )
 end
 ```
 

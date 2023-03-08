@@ -62,7 +62,7 @@ point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
 
 # Examples
 ```jldoctest; filter = [r".*error is.*", r".*seconds.*", r".*Attractive.*"]
-julia> using LightGraphs
+julia> using Graphs
 
 julia> G = circular_ladder_graph( 500 )
 {1000, 1500} undirected simple Int64 graph
@@ -93,27 +93,30 @@ Iteration 249: error is 1.65057 (50 iterations in 0.213149 seconds)
  Attractive forces: 0.006199 sec [1.24082%] |  Repulsive forces: 0.49339 sec [98.7592%]
 ```
 """
-sgtsnepi( G::AbstractGraph ; kwargs... ) = sgtsnepi( Float64.( adjacency_matrix(G) ) ; kwargs... )
+sgtsnepi( G::T ; kwargs... ) where {T<:AbstractGraph} = sgtsnepi( Float64.( adjacency_matrix(G) ) ; kwargs... )
 
 @enum SGTSNEPI_VERSION NUCONV_BL EXACT NUCONV
 
 @doc raw"""
-    pointcloud2graph( X::AbstractMatrix, u = 10, k = 3*u; knn_type )
+    pointcloud2graph( X::AbstractMatrix, u = 10, k = 3*u; knn_type, rescale_type = :perplexity )
 
 Convert a point-cloud data set $X$ (coordinates) of size $N \times D$ to a
 similarity graph, using perplexity equalization, same as conventional t-SNE.
 
 ## Special options for point-cloud data embedding
 
-- `u=10`: perplexity
+- `u=10`: either perplexity or value of λ (if `rescale_type`` is set to :lambda)
 - `k=3*u`: number of nearest neighbors (for kNN formation)
 - `knn_type=( size(A,1) < 10_000 ) || !USING_FLANN ? :exact : :flann`: Exact or approximate kNN
+- `rescale_type=:perplexity: Which rescaling operation to use to transform distances into edge weights. 
+   Either `:perplexity` or `:lambda`. Default is `:perlexity`.
 
 """
 function pointcloud2graph( X::AbstractMatrix, u = 10, k = 3*u;
-                           knn_type = ( size(X,1) < 10_000 ) || !USING_FLANN ? :exact : :flann )
+                           knn_type = ( size(X,1) < 10_000 ) || !USING_FLANN ? :exact : :flann,
+                           rescale_type = :perplexity )
 
-   _form_knn_graph( X, u, k; knn_type )
+   _form_knn_graph( X, u, k; knn_type, rescale_type )
 
 end
 

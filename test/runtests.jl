@@ -3,6 +3,7 @@ using Test
 using Graphs
 using SparseArrays
 using Makie
+using Colors
 
 @testset "SGtSNEpi.jl" begin
 
@@ -42,6 +43,16 @@ using Makie
 
   using FLANN
 
+  @testset "simple, small examples" begin
+    
+    A = sparse( [1.0 0.0;0.0 1.0] )
+
+    SGtSNEpi.sgtsne_lambda_equalization(sparse(A),3.0)
+    SGtSNEpi.perplexity_equalization(sparse(A),3.0)
+    SGtSNEpi.sgtsne_lambda_equalization(sparse(A),1e18)
+    
+  end
+
   @testset "$knn_type knn" for knn_type ∈ [:flann]
 
     @testset "profile $profile" for profile ∈ [true, false]
@@ -57,6 +68,9 @@ using Makie
         SGtSNEpi.sgtsne_lambda_equalization( A, 1  );
         SGtSNEpi.sgtsne_lambda_equalization( A, 10 );
         SGtSNEpi.sgtsne_lambda_equalization( A, 1000000 );
+
+        W = pointcloud2graph( X, 5, 10; knn_type, rescale_type = :lambda )
+        W = pointcloud2graph( X, 10000, 4; knn_type, rescale_type = :lambda )
 
         Y = sgtsnepi( A; d = d,
                       max_iter = 300, early_exag = 150,
@@ -115,6 +129,13 @@ using Makie
 
     f = show_embedding( Y )
 
+    cmap = distinguishable_colors(
+      maximum(L) - minimum(L) + 1,
+      [RGB(1,1,1), RGB(0,0,0)], dropseed=true)
+    clr_in = RGBA(cmap[1], 0.2)
+
+    show_embedding( Y; clr_in )
+
     @test typeof( show_embedding( Y ) ) == Figure
     @test typeof( show_embedding( Y, L ) ) == Figure
     @test typeof( show_embedding( Y, L ; A = A ) ) == Figure
@@ -128,6 +149,7 @@ using Makie
     X = rand( n, 50 )
 
     @test_throws Exception pointcloud2graph( X; knn_type = :other )
+    @test_throws Exception pointcloud2graph( X; rescale_type = :other )
 
   end
 
