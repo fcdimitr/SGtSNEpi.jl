@@ -31,6 +31,8 @@ point-cloud data set $X$ (coordinates) of size $N \times D$, i.e.,
   You should set this parameter to generate reproducible results.
 - `eta=200.0`: learning parameter
 - `drop_leaf=false`: remove edges connecting to leaf nodes
+- `flag_unweighted_to_weighted=true`: if `true`, convert unweighted graph to weighted
+   graph by computing local neighborhood weights
 
 ## Advanced options (performance-related)
 
@@ -137,6 +139,7 @@ function sgtsnepi( A::AbstractMatrix ;
                    drop_leaf = false,
                    list_grid_size = filter( x -> x == nextprod( (2, 3, 5), x ), 16:512 ),
                    bound_box = version == NUCONV_BL ? -1.0 : Inf,
+                   flag_unweighted_to_weighted = true,
                    par_scheme_grid_thres = get_parallelism_strategy_threshold(d,np) )
 
   !isequal( size(A)... ) && error( "Input must be an adjacency matrix (square matrix)" )
@@ -146,6 +149,10 @@ function sgtsnepi( A::AbstractMatrix ;
 
   nnz( diag(A) ) > 0 && @warn "$( nnz( diag(A) ) ) elements have self-loops; setting distances to 0"
   A = A - spdiagm( 0 => diag( A ) )
+  # if matrix is unweighted and the flag is turned on, compute local weights
+  if flag_unweighted_to_weighted && all( x -> x == 1.0, nonzeros(A) )
+    A = local_weights( A )
+  end
   dropzeros!( A )
 
   minimum( nonzeros(A) ) < 0.0 && error( "Negative edge weights are not supported" )
@@ -157,7 +164,7 @@ function sgtsnepi( A::AbstractMatrix ;
   Y0 = ( isnothing( Y0 ) ) ? C_NULL : Y0
 
   Y0 != C_NULL && size( Y0 ) != (n, d) && error( "Incorrect initial distribution size: $(size(Y0))" )
-
+  
   # transform input matrix to stochastic; isolated nodes are removed, index contains valid IDs
   P, idx = colstoch( A )
 

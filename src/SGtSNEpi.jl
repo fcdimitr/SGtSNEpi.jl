@@ -29,6 +29,7 @@ include( "util.jl" )
 include( "knn.jl" )
 include( "sgtsne.jl" )
 include( "arch_spec.jl" )
+include( "local_weights.jl" )
 
 # Initialization
 function __init__()
