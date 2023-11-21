@@ -145,12 +145,16 @@ function sgtsnepi( A::AbstractMatrix ;
   !isequal( size(A)... ) && error( "Input must be an adjacency matrix (square matrix)" )
   (d > 3 || d < 1) && error( "Supported embedding dimensions are 1, 2, and 3." )
 
+  # print all parameters if debug
+  @debug "Input parameters" d λ max_iter early_exag Y0 profile np version h u k eta alpha fftw_single exact drop_leaf list_grid_size bound_box flag_unweighted_to_weighted par_scheme_grid_thres
+
   A = issparse( A ) ? A : sparse( A )
 
   nnz( diag(A) ) > 0 && @warn "$( nnz( diag(A) ) ) elements have self-loops; setting distances to 0"
   A = A - spdiagm( 0 => diag( A ) )
   # if matrix is unweighted and the flag is turned on, compute local weights
   if flag_unweighted_to_weighted && all( x -> x == 1.0, nonzeros(A) )
+    @debug "Input matrix is unweighted; adding local weights"
     A = local_weights( A )
   end
   dropzeros!( A )
@@ -245,15 +249,11 @@ function _sgtsnepi_c( P::SparseMatrixCSC, d::Int, max_iter::Int, early_exag::Int
     bb = h * ( size(P, 1) ^ (1/d) ) / 2
   end
 
-  @debug bb
-
   h =  h == 0.0 ? 1.0 : h
 
   h = Float64.( isempty(size(h)) ? [max_iter+1, h] : h )
   ( length( h ) % 2 ) == 0 || error( "h must have even number of elements" )
   ( h[end-1] >= max_iter ) || error( "last phase should be equal or greater to max_iter" )
-
-  @debug h
 
   list_grid_size = Int32.( list_grid_size )
 
