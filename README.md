@@ -23,7 +23,7 @@ To install `SG-t-SNE-Π` through Julia, issue
 ] add SGtSNEpi
 ```
 
-> :warning: **SGtSNEpi is currently not working on Windows and native M1 Macs**: Either use WSL2 on Windows or use the package via rosetta2 on M1 Macs.
+> :warning: **SGtSNEpi is currently not working on Windows and native M1 Macs**: Either use WSL2 on Windows or use the package via `Rosetta 2` on the M-processor Macs (that means by using the `x86` and not the `arm64` `julia`).
 
 See [the full
 documentation](https://fcdimitr.github.io/SGtSNEpi.jl/stable) for more
