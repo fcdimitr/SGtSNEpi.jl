@@ -2,3 +2,4 @@
 /docs/build/
 /docs/.auctex-auto
 .DS_Store
+.vscode/settings.json
