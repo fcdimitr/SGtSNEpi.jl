@@ -44,6 +44,8 @@ jobs:
       actions: write # needed to allow julia-actions/cache to proactively delete old caches that it has created
       contents: write
       statuses: write
+    env:
+      DATADEPS_ALWAYS_ACCEPT: true
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
