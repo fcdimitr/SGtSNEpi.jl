@@ -30,9 +30,9 @@ First, we download the dataset
 ```@example 1
 using SGtSNEpi, MLDatasets, ImageFeatures, Random, Images
 
-X, L = MNIST.traindata(Float64);
-X = cat( X, MNIST.testdata(Float64)[1] ; dims = 3 );
-L = cat( L, MNIST.testdata(Float64)[2] ; dims = 1 );
+X, L = MNIST(Float64, split=:train)[:];
+X = cat( X, MNIST(Float64, split=:test).features ; dims = 3 );
+L = cat( L, MNIST(Float64, split=:test).targets ; dims = 1 );
 
 L = Int.( vec( L ) );  # make sure labels is an integer vector
 
