@@ -3,3 +3,4 @@
 /docs/.auctex-auto
 .DS_Store
 .vscode/settings.json
+Manifest-v*.*.toml
